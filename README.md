@@ -5,4 +5,4 @@
 Đồ án cuối kì CSLT
 ---
 
-Nhớ đọc file [Contribute](Contribute.md)
+Nhớ đọc file [CONTRIBUTING.md](CONTRIBUTING.md)
