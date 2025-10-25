@@ -11,6 +11,10 @@
 - No circular dependencies.
 - Avoid 'using namespace' in header files.
 
+---
+- **Always comment and explain each methods / function / class (why it is there, what it does).**
+---
+
 # Naming Conventions
 
 | Type                    | Convention                | Example                                 |
