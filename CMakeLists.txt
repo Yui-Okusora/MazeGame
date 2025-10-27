@@ -8,16 +8,17 @@ endif()
 
 project ("MazeGame")
 
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
 add_subdirectory(${CMAKE_SOURCE_DIR}/libs/glfw)
 add_subdirectory(${CMAKE_SOURCE_DIR}/libs/glad)
 
-add_executable (MazeGame "src/MazeGame.cpp")
+add_executable (MazeGame "src/MazeGame.cpp" "src/Application.cpp" "src/Window.cpp")
 
-target_include_directories(MazeGame PRIVATE ${CMAKE_SOURCE_DIR}/include)
+target_compile_features(MazeGame PRIVATE cxx_std_23)
+target_include_directories(MazeGame 
+    PRIVATE
+    ${CMAKE_SOURCE_DIR}/include/
+    ${CMAKE_SOURCE_DIR}/libs/glm
+)
 
 target_link_libraries(MazeGame
     PRIVATE
