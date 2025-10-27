@@ -24,6 +24,11 @@ void Window::create()
     glfwSwapInterval(m_specs.vSync ? 1 : 0);
 }
 
+Window::~Window()
+{
+    destroy();
+}
+
 void Window::destroy()
 {
     if (m_handle)

@@ -10,6 +10,7 @@ project ("MazeGame")
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/libs/glfw)
 add_subdirectory(${CMAKE_SOURCE_DIR}/libs/glad)
+add_subdirectory(${CMAKE_SOURCE_DIR}/libs/glm)
 
 add_executable (MazeGame "src/MazeGame.cpp" "src/Application.cpp" "src/Window.cpp")
 

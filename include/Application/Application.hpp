@@ -11,15 +11,14 @@ struct ApplicationSpecs
 class Application
 {
 public:
-	Application(const ApplicationSpecs& specification = ApplicationSpecs());
+	Application(const ApplicationSpecs& specs = ApplicationSpecs());
 	~Application();
 
 	void run();
 	void stop();
-private:
-	ApplicationSpecs m_Specs;
-	std::shared_ptr<Window> m_Window;
-	bool m_Running = false;
 
-	//std::vector<std::unique_ptr<Layer>> m_LayerStack;
+private:
+	ApplicationSpecs m_specs;
+	std::shared_ptr<Window> m_window;
+	bool m_running = false;
 };
