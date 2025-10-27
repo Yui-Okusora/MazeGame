@@ -22,6 +22,7 @@
 | **Classes / Structs**   | PascalCase                | `MemoryPool`, `FileMapper`              |
 | **Functions / Methods** | camelCase                 | `allocateBlock()`, `loadTexture()`      |
 | **Variables**           | camelCase                 | `bufferSize`, `threadCount`             |
+| **Member fields**       | prefix "m_" + camelCase   | `m_specs`, `m_handle`                   |
 | **Constants**           | UPPER_SNAKE_CASE          | `MAX_BUFFER_SIZE`                       |
 | **Namespaces**          | lowercase                 | `soramem`, `render`, `math`             |
 | **Files**               | snake_case                | `memory_pool.cpp`, `memory_pool.hpp`    |
