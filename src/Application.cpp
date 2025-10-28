@@ -4,6 +4,10 @@
 Application::Application(const ApplicationSpecs& specs)
 	: m_specs(specs)
 {
+    ctx.app = this;
+    m_processor = std::make_unique<Processor>(&ctx);
+    m_io = std::make_unique<IO>(&ctx);
+
     if (!glfwInit())
     {
         throw std::runtime_error("Failed to initialize GLFW\n");
@@ -20,6 +24,8 @@ Application::Application(const ApplicationSpecs& specs)
 
 Application::~Application()
 {
+    if (m_procThread.joinable()) m_procThread.join();
+    if (m_ioThread.joinable()) m_ioThread.join();
     m_window->destroy();
     glfwTerminate();
 }
@@ -66,6 +72,9 @@ void checkCompile(GLuint shader) {
 
 void Application::run()
 {
+    m_ioThread = std::thread(*m_io);
+    m_procThread = std::thread(*m_processor);
+
     float lastTime = getTime();
 
     glfwSetKeyCallback(m_window->getHandle(), key_callback);

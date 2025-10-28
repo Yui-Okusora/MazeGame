@@ -12,7 +12,7 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/libs/glfw)
 add_subdirectory(${CMAKE_SOURCE_DIR}/libs/glad)
 add_subdirectory(${CMAKE_SOURCE_DIR}/libs/glm)
 
-add_executable (MazeGame "src/MazeGame.cpp" "src/Application.cpp" "src/Window.cpp")
+add_executable (MazeGame "src/MazeGame.cpp" "src/Application.cpp" "src/Window.cpp" "src/Processor.cpp" "src/IO.cpp")
 
 target_compile_features(MazeGame PRIVATE cxx_std_23)
 target_include_directories(MazeGame 
