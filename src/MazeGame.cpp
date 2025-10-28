@@ -5,7 +5,6 @@ int main() {
     ApplicationSpecs specs = {
         .appTitle = "Test",
         .windowsSpecs = {
-            .title = "Test",
             .width = 800,
             .height = 600,
             .resizable = true,
