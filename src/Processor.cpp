@@ -1,6 +1,6 @@
 #include <Processor/Processor.hpp>
 
-Processor::Processor(AppContext* _ctx) : ctx(_ctx)
+Processor::Processor(IApplication* _app) : app(_app)
 {
 
 }

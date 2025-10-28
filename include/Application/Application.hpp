@@ -1,7 +1,7 @@
 #pragma once
-#include <Core.hpp>
 #include <Window/Window.hpp>
 #include <State/State.hpp>
+#include <Application/IApplication.hpp>
 #include <Processor/Processor.hpp>
 #include <IO/IO.hpp>
 
@@ -11,14 +11,11 @@ struct ApplicationSpecs
 	WindowSpecs windowsSpecs;
 };
 
-class AppContext;
-
-class Application
+class Application : public IApplication
 {
 public:
 	Application(const ApplicationSpecs& specs = ApplicationSpecs());
 	~Application();
-
 	void run();
 	void stop();
 
@@ -43,7 +40,6 @@ private:
 	std::unique_ptr<Processor> m_processor;
 	std::unique_ptr<IO> m_io;
 
-	AppContext ctx;
 
 	bool m_running = false;
 

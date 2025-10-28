@@ -1,13 +1,13 @@
 #pragma once
 
 #include <Core.hpp>
-#include <AppContext/AppContext.hpp>
+#include <Application/IApplication.hpp>
 
 class Processor
 {
 public:
-	Processor(AppContext* _ctx);
+	Processor(IApplication* _app);
 	void operator()();
 private:
-	AppContext* ctx = nullptr;
+	IApplication* app = nullptr;
 };

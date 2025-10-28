@@ -4,9 +4,8 @@
 Application::Application(const ApplicationSpecs& specs)
 	: m_specs(specs)
 {
-    ctx.app = this;
-    m_processor = std::make_unique<Processor>(&ctx);
-    m_io = std::make_unique<IO>(&ctx);
+    m_processor = std::make_unique<Processor>(this);
+    m_io = std::make_unique<IO>(this);
 
     if (!glfwInit())
     {

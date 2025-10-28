@@ -1,6 +1,6 @@
 #include <IO/IO.hpp>
 
-IO::IO(AppContext* _ctx) : ctx(_ctx)
+IO::IO(IApplication* _app) : app(_app)
 {
 
 }
