@@ -11,6 +11,9 @@ project ("MazeGame")
 add_subdirectory(${CMAKE_SOURCE_DIR}/libs/glfw)
 add_subdirectory(${CMAKE_SOURCE_DIR}/libs/glad)
 add_subdirectory(${CMAKE_SOURCE_DIR}/libs/glm)
+add_subdirectory(${CMAKE_SOURCE_DIR}/libs/gl2d)
+add_subdirectory(${CMAKE_SOURCE_DIR}/libs/stb_image)
+add_subdirectory(${CMAKE_SOURCE_DIR}/libs/stb_truetype)
 
 add_executable (MazeGame "src/MazeGame.cpp" "src/Application.cpp" "src/Window.cpp" "src/Processor.cpp" "src/IO.cpp")
 
@@ -25,4 +28,7 @@ target_link_libraries(MazeGame
     PRIVATE
         glad
         glfw
+        gl2d
+        stb_image
+        stb_truetype
 )

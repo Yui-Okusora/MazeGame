@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include <gl2d/gl2d.h>
 #include <DoubleBuffer/DoubleBuffer.hpp>
 #include <iostream>
 #include <memory>

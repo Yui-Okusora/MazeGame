@@ -34,6 +34,8 @@ private:
 	ApplicationSpecs m_specs;
 	std::shared_ptr<Window> m_window;
 
+	gl2d::Renderer2D renderer;
+
 	std::thread m_procThread;
 	std::thread m_ioThread;
 

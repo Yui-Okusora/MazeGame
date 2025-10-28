@@ -19,6 +19,8 @@ Application::Application(const ApplicationSpecs& specs)
     m_window = std::make_shared<Window>(m_specs.windowsSpecs);
     m_window->create();
     
+    gl2d::init();
+    renderer.create();
 }
 
 Application::~Application()
@@ -78,65 +80,9 @@ void Application::run()
 
     glfwSetKeyCallback(m_window->getHandle(), key_callback);
 
-    // Rectangle vertices (two triangles)
-    float vertices[] = {
-        -0.1f, -0.1f,
-         0.1f, -0.1f,
-         0.1f,  0.1f,
-        -0.1f,  0.1f
-    };
-    unsigned int indices[] = {
-        0, 1, 2,
-        2, 3, 0
-    };
-
-    // Setup VAO, VBO, EBO
-    GLuint VAO, VBO, EBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    // Compile shaders
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSrc, nullptr);
-    glCompileShader(vertexShader);
-    checkCompile(vertexShader);
-
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSrc, nullptr);
-    glCompileShader(fragmentShader);
-    checkCompile(fragmentShader);
-
-    // Link program
-    GLuint shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-
-    glUseProgram(shaderProgram);
-
-    // Get uniform locations
-    GLint offsetLoc = glGetUniformLocation(shaderProgram, "uOffset");
-    GLint colorLoc = glGetUniformLocation(shaderProgram, "uColor");
-
-    // Enable alpha blending
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     while (m_running)
     {
-        glfwPollEvents();
 
         if (m_window->shouldClose())
         {
@@ -157,16 +103,27 @@ void Application::run()
             state->OnRender();
 
 
-        glm::vec2 clientRect = m_window->getFramebufferSize();
+        glm::vec2 clientRect = getFramebufferSize();
         int width = (float)clientRect.x;
         int height = (float)clientRect.y;
 
         glViewport(0, 0, width, height);
         glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+        renderer.updateWindowMetrics(width, height);
 
+        // Clear screen
+        renderer.clearScreen({ 0.1, 0.2, 0.6, 1 });
 
-        float time = glfwGetTime();
+        // Render objects
+        renderer.renderRectangle({ 100, 250, 100, 100 }, Colors_White, {}, 0);
+        //renderer.renderRectangle({100, 100, 100, 100}, texture, Colors_White, {}, 0);
+        // Add more rendering here...
+
+        // Flush renderer (dump your rendering into the screen)
+        renderer.flush();
+
+        /*float time = glfwGetTime();
         float x = 0.5f * sin(time);
         float y = 0.3f * cos(time * 1.5f);
 
@@ -178,16 +135,17 @@ void Application::run()
         glUniform3f(colorLoc, fabs(sin(time)), fabs(cos(time)), 1.0f - fabs(sin(time)));
 
         glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);*/
 
 
         m_window->update();
+        glfwPollEvents();
     }
 
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
-    glDeleteProgram(shaderProgram);
+    //glDeleteVertexArrays(1, &VAO);
+    //glDeleteBuffers(1, &VBO);
+    //glDeleteBuffers(1, &EBO);
+    //glDeleteProgram(shaderProgram);
 }
 
 void Application::stop()
