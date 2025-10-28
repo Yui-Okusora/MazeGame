@@ -21,6 +21,8 @@ Application::Application(const ApplicationSpecs& specs)
     
     gl2d::init();
     renderer.create();
+
+    player_texture.loadFromFile("C:\\Users\\Lenovo\\Desktop\\Maze\\resources\\2D Pixel Dungeon Asset Pack\\Character_animation\\monsters_idle\\skeleton1\\v1\\skeleton_v1_1.png", true);
 }
 
 Application::~Application()
@@ -116,36 +118,17 @@ void Application::run()
         renderer.clearScreen({ 0.1, 0.2, 0.6, 1 });
 
         // Render objects
-        renderer.renderRectangle({ 100, 250, 100, 100 }, Colors_White, {}, 0);
+        renderer.renderRectangle({100, 250, 100, 100 }, player_texture);
         //renderer.renderRectangle({100, 100, 100, 100}, texture, Colors_White, {}, 0);
         // Add more rendering here...
 
         // Flush renderer (dump your rendering into the screen)
         renderer.flush();
 
-        /*float time = glfwGetTime();
-        float x = 0.5f * sin(time);
-        float y = 0.3f * cos(time * 1.5f);
-
-        glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        glUseProgram(shaderProgram);
-        glUniform2f(offsetLoc, x, y);
-        glUniform3f(colorLoc, fabs(sin(time)), fabs(cos(time)), 1.0f - fabs(sin(time)));
-
-        glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);*/
-
-
         m_window->update();
         glfwPollEvents();
     }
 
-    //glDeleteVertexArrays(1, &VAO);
-    //glDeleteBuffers(1, &VBO);
-    //glDeleteBuffers(1, &EBO);
-    //glDeleteProgram(shaderProgram);
 }
 
 void Application::stop()

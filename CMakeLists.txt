@@ -24,6 +24,8 @@ target_include_directories(MazeGame
     ${CMAKE_SOURCE_DIR}/libs/glm
 )
 
+target_compile_definitions(MazeGame PUBLIC RESOURCES_PATH="${CMAKE_SOURCE_DIR}/resources/")
+
 target_link_libraries(MazeGame
     PRIVATE
         glad
