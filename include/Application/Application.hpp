@@ -40,6 +40,7 @@ private:
     std::shared_ptr<Window> m_window;
 
     gl2d::Renderer2D renderer;
+    gl2d::Texture player_texture;
 
     std::thread m_procThread;
     std::thread m_ioThread;
