@@ -11,7 +11,7 @@
 
 //Self-write libraries
 #include <DoubleBuffer/DoubleBuffer.hpp>
-#include <RenderData/RenderData.hpp>
+#include <CircularBuffer/CircularBuffer.hpp>
 
 
 // STL Libraries

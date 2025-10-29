@@ -2,7 +2,7 @@
 
 
 Application::Application(const ApplicationSpecs& specs)
-    : m_specs(specs)
+    : m_specs(specs), m_inputBuffer(512)
 {
     m_processor = std::make_unique<Processor>(this);
     m_io = std::make_unique<IO>(this);
@@ -36,19 +36,10 @@ Application::~Application()
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     auto* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, GLFW_TRUE);
-}
-
-// Check for shader compile errors
-static void checkCompile(GLuint shader) {
-    GLint success;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        char info[512];
-        glGetShaderInfoLog(shader, 512, nullptr, info);
-        std::cerr << "Shader compile error: " << info << std::endl;
-    }
+    auto& buf = app->getInputBuffer();
+    buf.push({ key, scancode, action, mods });
+    //InputEvent e = buf.front();
+    //std::cout << "Key: " << e.key << " action: " << e.action << "\n";
 }
 
 void Application::run()
@@ -56,8 +47,9 @@ void Application::run()
     m_ioThread = std::thread(*m_io);
     m_procThread = std::thread(*m_processor);
 
-    glfwSetKeyCallback(m_window->getHandle(), key_callback);
+    std::this_thread::sleep_for(std::chrono::duration<float>(0.01));
 
+    glfwSetKeyCallback(m_window->getHandle(), key_callback);
 
     while (m_running)
     {
@@ -74,13 +66,17 @@ void Application::run()
         glViewport(0, 0, width, height);
         glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        GameplayData& gameplayData = getRenderBuffer().getReadBuffer();
+
         renderer.updateWindowMetrics(width, height);
 
         // Clear screen
         renderer.clearScreen({ 0.1, 0.2, 0.6, 1 });
 
         // Render objects
-        renderer.renderRectangle({250, 250, 100, 100 }, player_texture);
+        //std::cout << gameplayData.player_pos.x<<"\n";
+        renderer.renderRectangle({gameplayData.player_pos, 100, 100 }, player_texture);
         // Add more rendering here...
 
         // Flush renderer (dump your rendering into the screen)

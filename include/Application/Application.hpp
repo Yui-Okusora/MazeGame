@@ -1,9 +1,8 @@
 #pragma once
-#include <Window/Window.hpp>
 #include <Application/IApplication.hpp>
 #include <Processor/Processor.hpp>
 #include <IO/IO.hpp>
-#include <GameplayData/GameplayData.hpp>
+
 
 struct ApplicationSpecs
 {
@@ -21,11 +20,13 @@ public:
 
     glm::vec2 getFramebufferSize() const;
 
-    bool getRunningStat() override { return m_running; }
+    bool getRunningStat() { return m_running; }
 
     float getTime();
 
-    DoubleBuffer<GameplayData>& getRenderBuffer() override { return m_renderBuffer; }
+    CircularBuffer<InputEvent>& getInputBuffer() { return m_inputBuffer; }
+
+    DoubleBuffer<GameplayData>& getRenderBuffer() { return m_renderBuffer; }
 
 private:
     ApplicationSpecs m_specs;
@@ -41,6 +42,7 @@ private:
     std::unique_ptr<Processor> m_processor;
     std::unique_ptr<IO> m_io;
 
+    CircularBuffer<InputEvent> m_inputBuffer;
     DoubleBuffer<GameplayData> m_renderBuffer;
 
     bool m_running = false;
