@@ -33,13 +33,6 @@ struct Material {
     float metallic = 0.0f;
 };
 
-//struct Material
-//{
-//    GLuint shader = 0;
-//    GLuint texture = 0;
-//    glm::vec4 color = glm::vec4(1.0f);
-//};
-
 struct RenderItem
 {
     Mesh mesh;

@@ -14,7 +14,6 @@ void Processor::operator()()
         float currentTime = app->getTime();
         float timestep = std::clamp(currentTime - lastTime, 0.001f, 0.1f);
         lastTime = currentTime;
-        for (const std::unique_ptr<State>& state : app->getStateStack())
-            state->OnUpdate(timestep);
+        
     }
 }
