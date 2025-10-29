@@ -3,6 +3,7 @@
 #include <Application/IApplication.hpp>
 #include <Processor/Processor.hpp>
 #include <IO/IO.hpp>
+#include <GameplayData/GameplayData.hpp>
 
 struct ApplicationSpecs
 {
@@ -24,7 +25,7 @@ public:
 
     float getTime();
 
-    DoubleBuffer<RenderData>& getRenderBuffer() override { return m_renderBuffer; }
+    DoubleBuffer<GameplayData>& getRenderBuffer() override { return m_renderBuffer; }
 
 private:
     ApplicationSpecs m_specs;
@@ -40,7 +41,7 @@ private:
     std::unique_ptr<Processor> m_processor;
     std::unique_ptr<IO> m_io;
 
-    DoubleBuffer<RenderData> m_renderBuffer;
+    DoubleBuffer<GameplayData> m_renderBuffer;
 
     bool m_running = false;
 

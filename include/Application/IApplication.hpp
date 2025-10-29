@@ -13,5 +13,5 @@ public:
 
     virtual float getTime() = 0;
 
-    virtual DoubleBuffer<RenderData>& getRenderBuffer() = 0;
+    virtual DoubleBuffer<GameplayData>& getRenderBuffer() = 0;
 };

@@ -79,8 +79,7 @@ void Application::run()
         renderer.clearScreen({ 0.1, 0.2, 0.6, 1 });
 
         // Render objects
-        renderer.renderRectangle({100, 250, 100, 100 }, player_texture);
-        //renderer.renderRectangle({100, 100, 100, 100}, texture, Colors_White, {}, 0);
+        renderer.renderRectangle({250, 250, 100, 100 }, player_texture);
         // Add more rendering here...
 
         // Flush renderer (dump your rendering into the screen)
