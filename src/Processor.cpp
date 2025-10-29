@@ -16,6 +16,7 @@ void Processor::operator()()
 
     while (app->getRunningStat())
     {
+        auto now = std::chrono::high_resolution_clock::now();
         float currentTime = app->getTime();
         std::cout << 1.0 / ((double)currentTime - (double)lastTime) << "\n";
         float timestep = std::clamp(currentTime - lastTime, 0.001f, 0.1f);
@@ -43,7 +44,7 @@ void Processor::operator()()
         if (move.x != 0 || move.y != 0)
         {
             move = glm::normalize(move);
-            move *= timestep * 20000;
+            move *= timestep * 2000;
             gameplayData.player_pos += move;
         }
         base = gameplayData;
@@ -52,5 +53,10 @@ void Processor::operator()()
         
 
         renderBuffer.swap();
+        auto frameTime = std::chrono::high_resolution_clock::now() - now;
+        auto sleep = std::chrono::milliseconds(8) - frameTime;
+        if (sleep > std::chrono::milliseconds(0)) {
+            std::this_thread::sleep_for(sleep);
+        }
     }
 }
