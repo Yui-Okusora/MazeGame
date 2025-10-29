@@ -17,7 +17,7 @@ public:
     Window(const WindowSpecs& specs = WindowSpecs());
     ~Window();
 
-    void create();
+    void create(void* applicationCtx);
     void destroy();
     void update();
 
