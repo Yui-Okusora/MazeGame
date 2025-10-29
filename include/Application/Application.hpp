@@ -18,22 +18,13 @@ public:
     void run();
     void stop();
 
-    template<typename T>
-        requires(std::is_base_of_v<State, T>)
-    void pushState()
-    {
-        m_stateStack.push_back(std::make_unique<T>());
-    }
-
     glm::vec2 getFramebufferSize() const;
 
-    bool getRunningStat() { return m_running; }
+    bool getRunningStat() override { return m_running; }
 
     float getTime();
 
-    DoubleBuffer<RenderData>& getRenderBuffer() { return m_renderBuffer; }
-
-    std::vector<std::unique_ptr<State>>& getStateStack() { return m_stateStack; }
+    DoubleBuffer<RenderData>& getRenderBuffer() override { return m_renderBuffer; }
 
 private:
     ApplicationSpecs m_specs;
@@ -53,6 +44,4 @@ private:
     bool m_running = false;
 
     std::chrono::steady_clock::time_point m_startTimePoint;
-
-    std::vector<std::unique_ptr<State>> m_stateStack;
 };

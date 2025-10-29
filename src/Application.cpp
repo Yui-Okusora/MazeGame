@@ -22,7 +22,7 @@ Application::Application(const ApplicationSpecs& specs)
     gl2d::init();
     renderer.create();
 
-    player_texture.loadFromFile("C:\\Users\\Lenovo\\Desktop\\Maze\\resources\\2D Pixel Dungeon Asset Pack\\Character_animation\\monsters_idle\\skeleton1\\v1\\skeleton_v1_1.png", true);
+    player_texture.loadFromFile(RESOURCES_PATH"2D Pixel Dungeon Asset Pack\\Character_animation\\monsters_idle\\skeleton1\\v1\\skeleton_v1_1.png", true);
 }
 
 Application::~Application()
@@ -38,29 +38,6 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
-
-// Vertex shader source
-const char* vertexShaderSrc = R"(
-#version 330 core
-layout(location = 0) in vec2 aPos;
-
-uniform vec2 uOffset; // dynamic position offset
-
-void main() {
-    gl_Position = vec4(aPos + uOffset, 0.0, 1.0);
-}
-)";
-
-// Fragment shader source
-const char* fragmentShaderSrc = R"(
-#version 330 core
-out vec4 FragColor;
-uniform vec3 uColor;
-
-void main() {
-    FragColor = vec4(uColor, 1.0);
-}
-)";
 
 // Check for shader compile errors
 static void checkCompile(GLuint shader) {
@@ -88,10 +65,6 @@ void Application::run()
             stop();
             break;
         }
-        
-        for (const std::unique_ptr<State>& state : m_stateStack)
-            state->OnRender();
-
 
         glm::vec2 clientRect = getFramebufferSize();
         int width = (float)clientRect.x;
