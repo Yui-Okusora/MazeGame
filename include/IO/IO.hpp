@@ -6,8 +6,8 @@
 class IO
 {
 public:
-	IO(IApplication* _app);
-	void operator()();
+    IO(IApplication* _app);
+    void operator()();
 private:
-	IApplication* app = nullptr;
+    IApplication* app = nullptr;
 };

@@ -1,4 +1,4 @@
-﻿cmake_minimum_required (VERSION 3.8)
+﻿cmake_minimum_required (VERSION 3.20)
 
 # Enable Hot Reload for MSVC compilers if supported.
 if (POLICY CMP0141)
@@ -8,20 +8,21 @@ endif()
 
 project ("MazeGame")
 
-add_subdirectory(${CMAKE_SOURCE_DIR}/libs/glfw)
-add_subdirectory(${CMAKE_SOURCE_DIR}/libs/glad)
-add_subdirectory(${CMAKE_SOURCE_DIR}/libs/glm)
-add_subdirectory(${CMAKE_SOURCE_DIR}/libs/gl2d)
-add_subdirectory(${CMAKE_SOURCE_DIR}/libs/stb_image)
-add_subdirectory(${CMAKE_SOURCE_DIR}/libs/stb_truetype)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/glfw)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/glad)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/glm)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/gl2d)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/stb_image)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/stb_truetype)
 
 add_executable (MazeGame "src/MazeGame.cpp" "src/Application.cpp" "src/Window.cpp" "src/Processor.cpp" "src/IO.cpp")
 
 target_compile_features(MazeGame PRIVATE cxx_std_23)
 target_include_directories(MazeGame 
     PRIVATE
-    ${CMAKE_SOURCE_DIR}/include/
-    ${CMAKE_SOURCE_DIR}/libs/glm
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/
+    #${CMAKE_CURRENT_SOURCE_DIR}/libs/glm
+	#${CMAKE_CURRENT_SOURCE_DIR}/libs/gl2d/include
 )
 
 target_compile_definitions(MazeGame PUBLIC RESOURCES_PATH="${CMAKE_SOURCE_DIR}/resources/")

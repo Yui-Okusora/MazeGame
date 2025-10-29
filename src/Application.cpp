@@ -2,7 +2,7 @@
 
 
 Application::Application(const ApplicationSpecs& specs)
-	: m_specs(specs)
+    : m_specs(specs)
 {
     m_processor = std::make_unique<Processor>(this);
     m_io = std::make_unique<IO>(this);
@@ -63,7 +63,7 @@ void main() {
 )";
 
 // Check for shader compile errors
-void checkCompile(GLuint shader) {
+static void checkCompile(GLuint shader) {
     GLint success;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
     if (!success) {
@@ -78,28 +78,16 @@ void Application::run()
     m_ioThread = std::thread(*m_io);
     m_procThread = std::thread(*m_processor);
 
-    float lastTime = getTime();
-
     glfwSetKeyCallback(m_window->getHandle(), key_callback);
 
 
     while (m_running)
     {
-
         if (m_window->shouldClose())
         {
             stop();
             break;
         }
-
-        float currentTime = getTime();
-        float timestep = std::clamp(currentTime - lastTime, 0.001f, 0.1f);
-        lastTime = currentTime;
-
-        
-        for (const std::unique_ptr<State>& state : m_stateStack)
-            state->OnUpdate(timestep);
-
         
         for (const std::unique_ptr<State>& state : m_stateStack)
             state->OnRender();
