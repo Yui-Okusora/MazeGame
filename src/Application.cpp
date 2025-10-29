@@ -22,7 +22,7 @@ Application::Application(const ApplicationSpecs& specs)
     gl2d::init();
     renderer.create();
 
-    player_texture.loadFromFile("C:\\Users\\Lenovo\\Desktop\\Maze\\resources\\2D Pixel Dungeon Asset Pack\\Character_animation\\monsters_idle\\skeleton1\\v1\\skeleton_v1_1.png", true);
+    player_texture.loadFromFile(RESOURCES_PATH "\\2D Pixel Dungeon Asset Pack\\Character_animation\\monsters_idle\\skeleton1\\v1\\skeleton_v1_1.png", true);
 }
 
 Application::~Application()

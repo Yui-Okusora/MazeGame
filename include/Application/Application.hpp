@@ -39,6 +39,7 @@ private:
     ApplicationSpecs m_specs;
     std::shared_ptr<Window> m_window;
 
+    //gl2d render texture
     gl2d::Renderer2D renderer;
     gl2d::Texture player_texture;
 

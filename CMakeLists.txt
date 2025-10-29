@@ -32,6 +32,7 @@ target_include_directories(MazeGame
 )
 
 target_compile_definitions(MazeGame PUBLIC RESOURCES_PATH="${CMAKE_SOURCE_DIR}/resources/")
+#target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC RESOURCES_PATH="./resources/")
 
 target_link_libraries(MazeGame
     PRIVATE
