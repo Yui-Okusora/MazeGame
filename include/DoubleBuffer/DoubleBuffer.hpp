@@ -7,25 +7,22 @@ template<typename T>
 class DoubleBuffer
 {
 public:
-    T& getReadBuffer()
+    T& getReadBuffer() noexcept
     {
-        int i = readIndex.load(std::memory_order_acquire);
-        return buffers[i];
+        return buffers[readIdx.load(std::memory_order_acquire)];
     }
 
-    T& getWriteBuffer()
+    T& getWriteBuffer() noexcept
     {
-        int i = readIndex.load(std::memory_order_acquire);
-        return buffers[1 - i];
+        return buffers[1 - readIdx.load(std::memory_order_acquire)];
     }
 
-    void swap()
+    void swap() noexcept
     {
-        int i = readIndex.load(std::memory_order_relaxed);
-        readIndex.store(1 - i, std::memory_order_release);
+        readIdx.store(1 - readIdx.load(std::memory_order_acquire), std::memory_order_release);
     }
 
 private:
-    std::atomic<int> readIndex{ 0 };
+    std::atomic<int> readIdx{ 0 };
     std::array<T, 2> buffers{};
 };

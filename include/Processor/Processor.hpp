@@ -6,8 +6,8 @@
 class Processor
 {
 public:
-	Processor(IApplication* _app);
-	void operator()();
+    Processor(IApplication* _app);
+    void operator()();
 private:
-	IApplication* app = nullptr;
+    IApplication* app = nullptr;
 };
