@@ -3,7 +3,7 @@
 Window::Window(const WindowSpecs& specs) : m_specs(specs)
 { }
 
-void Window::create()
+void Window::create(void* applicationCtx)
 {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
@@ -16,6 +16,8 @@ void Window::create()
         std::cerr << "Failed to create GLFW window!\n";
         throw std::runtime_error("");
     }
+
+    glfwSetWindowUserPointer(m_handle, applicationCtx);
 
     glfwMakeContextCurrent(m_handle);
 

@@ -17,7 +17,7 @@ Application::Application(const ApplicationSpecs& specs)
         m_specs.windowsSpecs.title = m_specs.appTitle;
 
     m_window = std::make_shared<Window>(m_specs.windowsSpecs);
-    m_window->create();
+    m_window->create(this);
     
     gl2d::init();
     renderer.create();
@@ -35,6 +35,7 @@ Application::~Application()
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+    auto* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
