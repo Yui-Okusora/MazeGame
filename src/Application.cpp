@@ -8,10 +8,8 @@ Application::Application(const ApplicationSpecs& specs)
     m_processor = std::make_unique<Processor>(this);
     m_io = std::make_unique<IO>(this);
 
-    if (!glfwInit())
-    {
-        throw std::runtime_error("Failed to initialize GLFW\n");
-    }
+    if (!glfwInit()) throw std::runtime_error("Failed to initialize GLFW\n");
+
     m_running = true;
 
     if (m_specs.windowsSpecs.title.empty())
@@ -21,15 +19,16 @@ Application::Application(const ApplicationSpecs& specs)
     m_window->create(this);
     
     gl2d::init();
-    renderer.create();
+    renderer.create(0, m_specs.quadCount);
 
-    player_texture.loadFromFile(RESOURCES_PATH"2D Pixel Dungeon Asset Pack\\Character_animation\\monsters_idle\\skeleton1\\v1\\skeleton_v1_1.png", true);
+    player_texture.loadFromFile("resources\\2D Pixel Dungeon Asset Pack\\Character_animation\\monsters_idle\\skeleton1\\v1\\skeleton_v1_1.png", true);
 }
 
 Application::~Application()
 {
     if (m_procThread.joinable()) m_procThread.join();
     if (m_ioThread.joinable()) m_ioThread.join();
+    gl2d::cleanup();
     m_window->destroy();
     glfwTerminate();
 }

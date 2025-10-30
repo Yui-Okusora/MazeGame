@@ -42,3 +42,9 @@ target_link_libraries(MazeGame
         stb_image
         stb_truetype
 )
+
+add_custom_command(TARGET MazeGame POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_SOURCE_DIR}/resources"
+        "$<TARGET_FILE_DIR:MazeGame>/resources"
+)

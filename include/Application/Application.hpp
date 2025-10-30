@@ -8,6 +8,7 @@ struct ApplicationSpecs
 {
     std::string appTitle = "Game";
     WindowSpecs windowsSpecs;
+    size_t quadCount = 2000;
 };
 
 class Application : public IApplication
