@@ -4,6 +4,7 @@
 Application::Application(const ApplicationSpecs& specs)
     : m_specs(specs), m_inputBuffer(512)
 {
+    m_startTimePoint = clock::now();
     m_processor = std::make_unique<Processor>(this);
     m_io = std::make_unique<IO>(this);
 
@@ -38,8 +39,6 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     auto* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
     auto& buf = app->getInputBuffer();
     buf.push({ key, scancode, action, mods });
-    //InputEvent e = buf.front();
-    //std::cout << "Key: " << e.key << " action: " << e.action << "\n";
 }
 
 void Application::run()
@@ -59,6 +58,8 @@ void Application::run()
             break;
         }
 
+        GameplayData& gameplayData = getRenderBuffer().getReadBuffer();
+
         glm::vec2 clientRect = getFramebufferSize();
         int width = (float)clientRect.x;
         int height = (float)clientRect.y;
@@ -67,8 +68,6 @@ void Application::run()
         glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        GameplayData& gameplayData = getRenderBuffer().getReadBuffer();
-
         renderer.updateWindowMetrics(width, height);
 
         // Clear screen
@@ -76,7 +75,7 @@ void Application::run()
 
         // Render objects
         //std::cout << gameplayData.player_pos.x<<"\n";
-        renderer.renderRectangle({gameplayData.player_pos, 100, 100 }, player_texture);
+        renderer.renderRectangle({gameplayData.player_pos, 64, 64 }, player_texture);
         // Add more rendering here...
 
         // Flush renderer (dump your rendering into the screen)
@@ -98,7 +97,7 @@ glm::vec2 Application::getFramebufferSize() const
     return m_window->getFramebufferSize();
 }
 
-float Application::getTime()
+double Application::getTime()
 {
-    return std::chrono::duration<float>(std::chrono::steady_clock::now() - m_startTimePoint).count();
+    return std::chrono::duration<double>(clock::now() - m_startTimePoint).count();
 }

@@ -4,7 +4,7 @@
 
 struct GameplayData
 {
-	glm::vec2 player_pos = { 250, 250 };
+	glm::vec2 player_pos = { 256, 256 };
 
 	//std::vector<Maze> maze;
 };

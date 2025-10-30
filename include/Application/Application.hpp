@@ -22,7 +22,7 @@ public:
 
     bool getRunningStat() { return m_running; }
 
-    float getTime();
+    double getTime();
 
     CircularBuffer<InputEvent>& getInputBuffer() { return m_inputBuffer; }
 
@@ -47,5 +47,5 @@ private:
 
     bool m_running = false;
 
-    std::chrono::steady_clock::time_point m_startTimePoint;
+    clock::time_point m_startTimePoint;
 };

@@ -8,13 +8,15 @@
 class IApplication
 {
 public:
+    using clock = std::chrono::steady_clock;
+
     virtual ~IApplication() = default;
 
     virtual glm::vec2 getFramebufferSize() const = 0;
 
     virtual bool getRunningStat() = 0;
 
-    virtual float getTime() = 0;
+    virtual double getTime() = 0;
     virtual void stop() = 0;
     virtual CircularBuffer<InputEvent>& getInputBuffer() = 0;
 
