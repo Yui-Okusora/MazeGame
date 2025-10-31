@@ -36,6 +36,9 @@ Application::~Application()
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     auto* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
+
+    app->getRenderBuffer().getWriteBuffer();
+
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
@@ -87,6 +90,7 @@ void Application::run()
         renderer.flush();
 
         m_window->update();
+        getRenderBuffer().swap();
         glfwPollEvents();
     }
 
