@@ -11,11 +11,12 @@
 
 //Self-write libraries
 #include <DoubleBuffer/DoubleBuffer.hpp>
-#include <RenderData/RenderData.hpp>
+#include <CircularBuffer/CircularBuffer.hpp>
 
 
 // STL Libraries
 #include <iostream>
+#include <filesystem>
 #include <memory>
 #include <thread>
 #include <atomic>

@@ -1,14 +1,14 @@
 #pragma once
-#include <Window/Window.hpp>
 #include <Application/IApplication.hpp>
 #include <Processor/Processor.hpp>
 #include <IO/IO.hpp>
-#include <GameplayData/GameplayData.hpp>
+
 
 struct ApplicationSpecs
 {
     std::string appTitle = "Game";
     WindowSpecs windowsSpecs;
+    size_t quadCount = 2000;
 };
 
 class Application : public IApplication
@@ -21,11 +21,13 @@ public:
 
     glm::vec2 getFramebufferSize() const;
 
-    bool getRunningStat() override { return m_running; }
+    bool getRunningStat() { return m_running; }
 
-    float getTime();
+    double getTime();
 
-    DoubleBuffer<GameplayData>& getRenderBuffer() override { return m_renderBuffer; }
+    CircularBuffer<InputEvent>& getInputBuffer() { return m_inputBuffer; }
+
+    DoubleBuffer<GameplayData>& getRenderBuffer() { return m_renderBuffer; }
 
 private:
     ApplicationSpecs m_specs;
@@ -35,15 +37,17 @@ private:
     gl2d::Renderer2D renderer;
     gl2d::Texture player_texture;
 
+    //Worker threads
     std::thread m_procThread;
     std::thread m_ioThread;
 
     std::unique_ptr<Processor> m_processor;
     std::unique_ptr<IO> m_io;
 
+    CircularBuffer<InputEvent> m_inputBuffer;
     DoubleBuffer<GameplayData> m_renderBuffer;
 
     bool m_running = false;
 
-    std::chrono::steady_clock::time_point m_startTimePoint;
+    clock::time_point m_startTimePoint;
 };

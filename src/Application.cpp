@@ -2,15 +2,14 @@
 
 
 Application::Application(const ApplicationSpecs& specs)
-    : m_specs(specs)
+    : m_specs(specs), m_inputBuffer(512)
 {
+    m_startTimePoint = clock::now();
     m_processor = std::make_unique<Processor>(this);
     m_io = std::make_unique<IO>(this);
 
-    if (!glfwInit())
-    {
-        throw std::runtime_error("Failed to initialize GLFW\n");
-    }
+    if (!glfwInit()) throw std::runtime_error("Failed to initialize GLFW\n");
+
     m_running = true;
 
     if (m_specs.windowsSpecs.title.empty())
@@ -20,15 +19,14 @@ Application::Application(const ApplicationSpecs& specs)
     m_window->create(this);
     
     gl2d::init();
-    renderer.create();
-
-    player_texture.loadFromFile(RESOURCES_PATH"2D Pixel Dungeon Asset Pack\\Character_animation\\monsters_idle\\skeleton1\\v1\\skeleton_v1_1.png", true);
+    renderer.create(0, m_specs.quadCount);
 }
 
 Application::~Application()
 {
     if (m_procThread.joinable()) m_procThread.join();
     if (m_ioThread.joinable()) m_ioThread.join();
+    gl2d::cleanup();
     m_window->destroy();
     glfwTerminate();
 }
@@ -36,22 +34,8 @@ Application::~Application()
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     auto* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
-
-    app->getRenderBuffer().getWriteBuffer();
-
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, GLFW_TRUE);
-}
-
-// Check for shader compile errors
-static void checkCompile(GLuint shader) {
-    GLint success;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        char info[512];
-        glGetShaderInfoLog(shader, 512, nullptr, info);
-        std::cerr << "Shader compile error: " << info << std::endl;
-    }
+    auto& buf = app->getInputBuffer();
+    buf.push({ key, scancode, action, mods });
 }
 
 void Application::run()
@@ -61,6 +45,13 @@ void Application::run()
 
     glfwSetKeyCallback(m_window->getHandle(), key_callback);
 
+    gl2d::Texture background;
+
+    player_texture.loadFromFile("resources\\Main.png", true);
+
+    background.loadFromFile("resources\\Mazemap1.png");
+
+    gl2d::TextureAtlas atlas(6, 1);
 
     while (m_running)
     {
@@ -70,30 +61,28 @@ void Application::run()
             break;
         }
 
+        GameplayData& gameplayData = getRenderBuffer().getReadBuffer();
+
         glm::vec2 clientRect = getFramebufferSize();
         int width = (float)clientRect.x;
         int height = (float)clientRect.y;
 
         glViewport(0, 0, width, height);
-        glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+
         renderer.updateWindowMetrics(width, height);
 
-        // Clear screen
         renderer.clearScreen({ 0.1, 0.2, 0.6, 1 });
 
-        // Render objects
-        renderer.renderRectangle({250, 250, 100, 100 }, player_texture);
-        // Add more rendering here...
-
-        // Flush renderer (dump your rendering into the screen)
+        renderer.renderRectangle({ gameplayData.mazePos, gameplayData.mazeSize }, background);
+        
+        renderer.renderRectangle({ gameplayData.playerPos, gameplayData.playerSize }, player_texture, Colors_White, {}, 0);//, atlas.get(gameplayData.atlasPos.x, gameplayData.atlasPos.y, gameplayData.isLeft));
+        
         renderer.flush();
 
         m_window->update();
         getRenderBuffer().swap();
         glfwPollEvents();
     }
-
 }
 
 void Application::stop()
@@ -106,7 +95,7 @@ glm::vec2 Application::getFramebufferSize() const
     return m_window->getFramebufferSize();
 }
 
-float Application::getTime()
+double Application::getTime()
 {
-    return std::chrono::duration<float>(std::chrono::steady_clock::now() - m_startTimePoint).count();
+    return std::chrono::duration<double>(clock::now() - m_startTimePoint).count();
 }
