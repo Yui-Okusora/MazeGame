@@ -4,6 +4,7 @@
 #include <RenderData/RenderData.hpp>
 #include <InputEvent/InputEvent.hpp>
 #include <Window/Window.hpp>
+#include <AssetsLoader/AssetsLoader.hpp>
 
 class IApplication
 {

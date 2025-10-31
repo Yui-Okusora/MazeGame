@@ -1,0 +1,1 @@
+#include <AssetsLoader/AssetsLoader.hpp>

@@ -21,7 +21,7 @@ Application::Application(const ApplicationSpecs& specs)
     gl2d::init();
     renderer.create(0, m_specs.quadCount);
 
-    player_texture.loadFromFile("resources\\2D Pixel Dungeon Asset Pack\\Character_animation\\monsters_idle\\skeleton1\\v1\\skeleton_v1_1.png", true);
+    player_texture.loadFromFile("resources\\Enemy_Animations_Set\\enemies-skeleton2_idle_1.png", true);
 }
 
 Application::~Application()
@@ -49,6 +49,12 @@ void Application::run()
 
     glfwSetKeyCallback(m_window->getHandle(), key_callback);
 
+    gl2d::Texture background;
+
+    background.loadFromFile("resources\\background.png");
+
+    gl2d::TextureAtlas atlas(6, 1);
+
     while (m_running)
     {
         if (m_window->shouldClose())
@@ -64,26 +70,20 @@ void Application::run()
         int height = (float)clientRect.y;
 
         glViewport(0, 0, width, height);
-        glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
 
         renderer.updateWindowMetrics(width, height);
 
-        // Clear screen
         renderer.clearScreen({ 0.1, 0.2, 0.6, 1 });
 
-        // Render objects
-        //std::cout << gameplayData.player_pos.x<<"\n";
-        renderer.renderRectangle({gameplayData.player_pos, 64, 64 }, player_texture);
-        // Add more rendering here...
-
-        // Flush renderer (dump your rendering into the screen)
+        renderer.renderRectangle({ gameplayData.mazePos, gameplayData.mazeSize }, background);
+        
+        renderer.renderRectangle({gameplayData.playerPos, gameplayData.playerSize }, player_texture, Colors_White, {}, 0, atlas.get(gameplayData.atlasPos.x, gameplayData.atlasPos.y, gameplayData.isLeft));
+        
         renderer.flush();
 
         m_window->update();
         glfwPollEvents();
     }
-
 }
 
 void Application::stop()

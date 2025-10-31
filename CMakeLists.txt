@@ -12,6 +12,9 @@ else()
 	set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
 endif()
 
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 project ("MazeGame")
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/glfw)
@@ -21,18 +24,15 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/gl2d)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/stb_image)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/stb_truetype)
 
-add_executable (MazeGame "src/MazeGame.cpp" "src/Application.cpp" "src/Window.cpp" "src/Processor.cpp" "src/IO.cpp")
+add_executable (MazeGame "src/MazeGame.cpp" "src/Application.cpp" "src/Window.cpp" "src/Processor.cpp" "src/IO.cpp" "src/AssetsLoader.cpp")
 
 target_compile_features(MazeGame PRIVATE cxx_std_23)
 target_include_directories(MazeGame 
     PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include/
-    #${CMAKE_CURRENT_SOURCE_DIR}/libs/glm
-	#${CMAKE_CURRENT_SOURCE_DIR}/libs/gl2d/include
 )
 
 target_compile_definitions(MazeGame PUBLIC RESOURCES_PATH="${CMAKE_SOURCE_DIR}/resources/")
-#target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC RESOURCES_PATH="./resources/")
 
 target_link_libraries(MazeGame
     PRIVATE

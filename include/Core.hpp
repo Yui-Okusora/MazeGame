@@ -16,6 +16,7 @@
 
 // STL Libraries
 #include <iostream>
+#include <filesystem>
 #include <memory>
 #include <thread>
 #include <atomic>
@@ -29,4 +30,3 @@
 #include <string>
 #include <cstdint>
 #include <unordered_map>
-#include <filesystem>
