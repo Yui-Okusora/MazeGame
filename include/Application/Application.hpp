@@ -37,6 +37,7 @@ private:
     gl2d::Renderer2D renderer;
     gl2d::Texture player_texture;
 
+    //Worker threads
     std::thread m_procThread;
     std::thread m_ioThread;
 

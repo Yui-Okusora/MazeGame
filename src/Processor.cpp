@@ -15,6 +15,8 @@ void Processor::operator()()
     GameplayData gameplayData;
     InputState inputState;
 
+    double fps = 60.0;
+
     std::vector<int> maze2 = 
     {// 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 
      //   1   2   3   4   5   6   7   8
@@ -42,17 +44,27 @@ void Processor::operator()()
 
     while (app->getRunningStat())
     {
+        std::cout << "\x1b[H";
+        //deltaTime and fixed timestep between frames
         double currentTime = app->getTime();
         double deltaTime = currentTime - lastTime;
-        //std::cout << deltaTime << "\n";
         double timestep = std::clamp(deltaTime, 0.001, 0.1);
         lastTime = currentTime;
 
+        //FPS printing
+        fps = 0.9 * fps + 0.1 * (1.0 / deltaTime);
+        std::cout << "FPS: " << fps << "\n";
+
+        //Get buffer to send to render thread
         GameplayData& base = renderBuffer.getWriteBuffer();
 
+        //Reset variable between frames
         glm::vec2 move = {};
+
+        //Alias
         glm::vec2& playerPos = gameplayData.playerPos;
 
+        // Key inputs handling
         while (!inputBuffer.empty())
         {
             InputEvent event = inputBuffer.pop();
@@ -74,34 +86,10 @@ void Processor::operator()()
                 move.x = 1;
         }
         
-        if (move.x == 1)
+        //Animation handling
         {
-            gameplayData.isLeft = false;
-        }
-        if (move.x == -1)
-        {
-            gameplayData.isLeft = true;
-        }
-
-        if (playerPos.x >= gameplayData.mazePos.x && playerPos.x <= (gameplayData.mazePos.x + gameplayData.mazeSize.x - 64))
-        if (playerPos.y >= gameplayData.mazePos.y && playerPos.y <= (gameplayData.mazePos.y + gameplayData.mazeSize.y - 64))
-        {
-            mazePos = (playerPos - gameplayData.mazePos) / 32.0f + 1.0f;
-            if (move.x == 1)   move.x *= maze2[mazePos.x + 17 * mazePos.y + 1];
-            if (move.x == -1)  move.x *= maze2[mazePos.x + 17 * mazePos.y - 1];
-            if (move.y == 1)   move.y *= maze2[mazePos.x + 17 * (mazePos.y + 1)];
-            if (move.y == -1)  move.y *= maze2[mazePos.x + 17 * (mazePos.y - 1)];
-            std::cout << mazePos.x << " " << mazePos.y << "\n";
-        }
-
-        if (move.x != 0 || move.y != 0)
-        {
-            move = glm::normalize(move);
-            move *= 64;
-            playerPos += move;
-        }
-
-        {
+            if (move.x == 1) gameplayData.isLeft = false;
+            if (move.x == -1)gameplayData.isLeft = true;
             static double accum = 0;
             accum += deltaTime;
             if (accum > 0.22)
@@ -110,9 +98,29 @@ void Processor::operator()()
                 gameplayData.atlasPos.x = (gameplayData.atlasPos.x + 1) % 6;
             }
         }
-        
-        base = gameplayData;
 
+        //Maze mechanism handling
+        if (glm::all(glm::greaterThanEqual(playerPos, gameplayData.mazePos)) &&
+            glm::all(glm::lessThanEqual(playerPos, gameplayData.mazePos + gameplayData.mazeSize - gameplayData.playerSize)))
+        {
+            mazePos = (playerPos - gameplayData.mazePos) / 32.0f + 1.0f;
+            if (move.x == 1)   move.x *= maze2[mazePos.x + 17 * mazePos.y + 1];
+            if (move.x == -1)  move.x *= maze2[mazePos.x + 17 * mazePos.y - 1];
+            if (move.y == 1)   move.y *= maze2[mazePos.x + 17 * (mazePos.y + 1)];
+            if (move.y == -1)  move.y *= maze2[mazePos.x + 17 * (mazePos.y - 1)];
+            //std::cout << mazePos.x << " " << mazePos.y << "\n";
+        }
+
+        //Movement handling
+        if (move.x != 0 || move.y != 0)
+        {
+            //move = glm::normalize(move);
+            move *= 64;
+            playerPos += move;
+        }
+        
+        // Fill new data to buffer and swap
+        base = gameplayData;
         renderBuffer.swap();
 
         auto frameTime = app->getTime() - currentTime;

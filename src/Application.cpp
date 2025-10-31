@@ -20,8 +20,6 @@ Application::Application(const ApplicationSpecs& specs)
     
     gl2d::init();
     renderer.create(0, m_specs.quadCount);
-
-    player_texture.loadFromFile("resources\\Enemy_Animations_Set\\enemies-skeleton2_idle_1.png", true);
 }
 
 Application::~Application()
@@ -45,13 +43,13 @@ void Application::run()
     m_ioThread = std::thread(*m_io);
     m_procThread = std::thread(*m_processor);
 
-    std::this_thread::sleep_for(std::chrono::duration<float>(0.01));
-
     glfwSetKeyCallback(m_window->getHandle(), key_callback);
 
     gl2d::Texture background;
 
-    background.loadFromFile("resources\\background.png");
+    player_texture.loadFromFile("resources\\Main.png", true);
+
+    background.loadFromFile("resources\\Mazemap1.png");
 
     gl2d::TextureAtlas atlas(6, 1);
 
@@ -77,7 +75,7 @@ void Application::run()
 
         renderer.renderRectangle({ gameplayData.mazePos, gameplayData.mazeSize }, background);
         
-        renderer.renderRectangle({gameplayData.playerPos, gameplayData.playerSize }, player_texture, Colors_White, {}, 0, atlas.get(gameplayData.atlasPos.x, gameplayData.atlasPos.y, gameplayData.isLeft));
+        renderer.renderRectangle({ gameplayData.playerPos, gameplayData.playerSize }, player_texture, Colors_White, {}, 0);//, atlas.get(gameplayData.atlasPos.x, gameplayData.atlasPos.y, gameplayData.isLeft));
         
         renderer.flush();
 
