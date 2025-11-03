@@ -100,6 +100,7 @@ void Application::run()
         renderer.flush();
 
         m_window->update();
+        getRenderBuffer().swap();
         glfwPollEvents();
     }
 }
