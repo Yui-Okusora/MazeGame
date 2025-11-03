@@ -24,9 +24,14 @@ public:
 
     //Get time point
     virtual double getTime() = 0;
+
+    //Get Mouse position
+    virtual MousePos getMousePos() = 0;
     
-    //Get input buffer for consuming
-    virtual CircularBuffer<InputEvent>& getInputBuffer() = 0;
+    //Get keyboard input buffer for consuming
+    virtual CircularBuffer<KeyInputEvent>& getKeyInputBuffer() = 0;
+
+    virtual CircularBuffer<MouseEvent>& getMouseKeyBuffer() = 0;
 
     //Get render buffer for consuming
     virtual DoubleBuffer<GameplayData>& getRenderBuffer() = 0;

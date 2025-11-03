@@ -2,7 +2,7 @@
 
 
 Application::Application(const ApplicationSpecs& specs)
-    : m_specs(specs), m_inputBuffer(512)
+    : m_specs(specs), m_keyInputBuffer(m_specs.keyInputBufSize), m_mouseKeyBuffer(m_specs.mouseKeyBufSize)
 {
     m_startTimePoint = clock::now();
     m_processor = std::make_unique<Processor>(this);
@@ -31,11 +31,26 @@ Application::~Application()
     glfwTerminate();
 }
 
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+void Application::keyInputCb(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     auto* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
-    auto& buf = app->getInputBuffer();
+    auto& buf = app->getKeyInputBuffer();
     buf.push({ key, scancode, action, mods });
+}
+
+void Application::mouseKeyInputCb(GLFWwindow* window, int button, int action, int mods)
+{
+    auto* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
+    auto& buf = app->getMouseKeyBuffer();
+    buf.push({ {button, action, mods} , app->getMousePos()});
+}
+
+void Application::mousePosInputCb(GLFWwindow* window, double xpos, double ypos)
+{
+    auto* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
+    auto& mousePos = app->m_mousePos;
+
+    mousePos.store(MousePos(xpos, ypos), std::memory_order_relaxed);
 }
 
 void Application::run()
@@ -43,9 +58,12 @@ void Application::run()
     m_ioThread = std::thread(*m_io);
     m_procThread = std::thread(*m_processor);
 
-    glfwSetKeyCallback(m_window->getHandle(), key_callback);
+    glfwSetKeyCallback(m_window->getHandle(), keyInputCb);
+    glfwSetMouseButtonCallback(m_window->getHandle(), mouseKeyInputCb);
+    glfwSetCursorPosCallback(m_window->getHandle(), mousePosInputCb);
 
     gl2d::Texture background;
+    gl2d::Texture player_texture;
 
     player_texture.loadFromFile("resources\\Main.png", true);
 
@@ -72,6 +90,8 @@ void Application::run()
         renderer.updateWindowMetrics(width, height);
 
         renderer.clearScreen({ 0.1, 0.2, 0.6, 1 });
+
+        renderer.renderRectangle({600, 300, 100, 100}, Colors_White);
 
         renderer.renderRectangle({ gameplayData.mazePos, gameplayData.mazeSize }, background);
         

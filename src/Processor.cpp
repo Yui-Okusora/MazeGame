@@ -1,4 +1,5 @@
 #include <Processor/Processor.hpp>
+#include <Utils/Utils.hpp>
 
 Processor::Processor(IApplication* _app) : app(_app)
 {
@@ -9,11 +10,12 @@ void Processor::operator()()
 {
     double lastTime = app->getTime();
 
-    auto& inputBuffer = app->getInputBuffer();
+    auto& keyInputBuffer = app->getKeyInputBuffer();
+    auto& mouseKeyBuffer = app->getMouseKeyBuffer();
     auto& renderBuffer = app->getRenderBuffer();
 
     GameplayData gameplayData;
-    InputState inputState;
+    KeyInputState inputState;
 
     double fps = 60.0;
 
@@ -44,7 +46,8 @@ void Processor::operator()()
 
     while (app->getRunningStat())
     {
-        std::cout << "\x1b[H";
+        std::cout << "                          \n                          \n                                \n                               \n\x1b[H";
+
         //deltaTime and fixed timestep between frames
         double currentTime = app->getTime();
         double deltaTime = currentTime - lastTime;
@@ -65,9 +68,9 @@ void Processor::operator()()
         glm::vec2& playerPos = gameplayData.playerPos;
 
         // Key inputs handling
-        while (!inputBuffer.empty())
+        while (!keyInputBuffer.empty())
         {
-            InputEvent event = inputBuffer.pop();
+            auto event = keyInputBuffer.pop();
 
             if (event.action == GLFW_PRESS)
                 inputState.keyDown[event.key] = true;
@@ -85,6 +88,20 @@ void Processor::operator()()
             else if ((event.key == GLFW_KEY_D || event.key == GLFW_KEY_RIGHT) && (event.action == GLFW_REPEAT || event.action == GLFW_PRESS))
                 move.x = 1;
         }
+
+        MousePos mousePos = app->getMousePos();
+
+        std::cout << "MousePos x: " << mousePos.x << " y: " << mousePos.y << "\n";
+        while (!mouseKeyBuffer.empty())
+        {
+            auto e = mouseKeyBuffer.pop();
+            std::cout << e.key.button << " " << e.key.action << "\n";
+            if (Utils::inRect({ e.pos.x, e.pos.y }, { 600, 300 }, { 100, 100 }) && e.key.button == 0 && e.key.action == GLFW_PRESS)
+            {
+                std::cout << "Button pressed!\n";
+                gameplayData = GameplayData();
+            }
+        }
         
         //Animation handling
         {
@@ -100,8 +117,7 @@ void Processor::operator()()
         }
 
         //Maze mechanism handling
-        if (glm::all(glm::greaterThanEqual(playerPos, gameplayData.mazePos)) &&
-            glm::all(glm::lessThanEqual(playerPos, gameplayData.mazePos + gameplayData.mazeSize - gameplayData.playerSize)))
+        if (Utils::inRect(playerPos, gameplayData.playerSize, gameplayData.mazePos, gameplayData.mazeSize))
         {
             mazePos = (playerPos - gameplayData.mazePos) / 32.0f + 1.0f;
             if (move.x == 1)   move.x *= maze2[mazePos.x + 17 * mazePos.y + 1];
@@ -123,6 +139,7 @@ void Processor::operator()()
         base = gameplayData;
         renderBuffer.swap();
 
+        //FPS Limiter
         auto frameTime = app->getTime() - currentTime;
         auto sleep = std::chrono::milliseconds(8) - std::chrono::duration<double>(frameTime);
         if (sleep > std::chrono::milliseconds(0)) {
