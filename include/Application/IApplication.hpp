@@ -5,6 +5,7 @@
 #include <InputEvent/InputEvent.hpp>
 #include <Window/Window.hpp>
 #include <AssetsLoader/AssetsLoader.hpp>
+#include <State/State.hpp>
 
 class IApplication
 {
@@ -35,4 +36,9 @@ public:
 
     //Get render buffer for consuming
     virtual DoubleBuffer<GameplayData>& getRenderBuffer() = 0;
+
+    //Get renderer
+    virtual gl2d::Renderer2D& getRenderer() = 0;
+
+    virtual StateStack& getStateStack() = 0;
 };

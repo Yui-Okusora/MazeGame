@@ -1,14 +1,14 @@
 #pragma once
 
-#include<Core.hpp>
+#include <Core.hpp>
+#include <Shape/Shape.hpp>
 
 struct GameplayData
 {
 	glm::vec2 playerPos = { 0, 0 };
     glm::vec2 playerSize = { 64, 64 };
-    glm::vec2 mazePos = { 0, 0 };
-    glm::vec2 mazeSize = { 512, 512 };
     glm::uvec2 atlasPos = { 0, 0 };
     bool isLeft = true;
+    std::shared_ptr<Shape> maze;
 };
 

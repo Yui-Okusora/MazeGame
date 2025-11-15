@@ -2,6 +2,7 @@
 #include <Application/IApplication.hpp>
 #include <Processor/Processor.hpp>
 #include <IO/IO.hpp>
+#include <State/State.hpp>
 
 
 struct ApplicationSpecs
@@ -42,6 +43,19 @@ public:
     //Get render buffer for consuming
     DoubleBuffer<GameplayData>& getRenderBuffer() { return m_renderBuffer; }
 
+    //Get renderer
+    gl2d::Renderer2D& getRenderer() { return renderer; }
+
+    StateStack& getStateStack() { return m_stateStack; }
+
+    //Add states
+    template<typename T>
+        requires(std::is_base_of_v<State, T>)
+    void pushState()
+    {
+        m_stateStack.addTrack(std::make_unique<T>(this));
+    }
+
 private:
     static void keyInputCb(GLFWwindow* window, int key, int scancode, int action, int mods);
     static void mouseKeyInputCb(GLFWwindow* window, int button, int action, int mods);
@@ -60,7 +74,6 @@ private:
     std::thread m_procThread;
     std::thread m_ioThread;
 
-
     std::unique_ptr<Processor> m_processor;
     std::unique_ptr<IO> m_io;
 
@@ -70,6 +83,8 @@ private:
     std::atomic<MousePos> m_mousePos;
 
     DoubleBuffer<GameplayData> m_renderBuffer;
+
+    StateStack m_stateStack;
 
     bool m_running = false;
 

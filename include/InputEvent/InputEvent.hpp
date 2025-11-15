@@ -30,5 +30,10 @@ struct MouseEvent
 };
 
 struct KeyInputState {
-    std::array<bool, GLFW_KEY_LAST + 1> keyDown{};
+    std::array<bool, GLFW_KEY_LAST + 1> keyDown = { false };
+    std::array<bool, GLFW_KEY_LAST + 1> keyPressed = { false };
+    std::array<bool, GLFW_KEY_LAST + 1> keyReleased = { false };
+    std::array<bool, GLFW_MOUSE_BUTTON_LAST + 1> mouseDown = { false };
+    std::array<bool, GLFW_MOUSE_BUTTON_LAST + 1> mousePressed = { false };
+    std::array<bool, GLFW_MOUSE_BUTTON_LAST + 1> mouseReleased = { false };
 };
