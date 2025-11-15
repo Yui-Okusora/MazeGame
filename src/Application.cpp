@@ -1,4 +1,5 @@
 #include <Application/Application.hpp>
+#include <Shape/Shape.hpp>
 
 
 Application::Application(const ApplicationSpecs& specs)
@@ -17,6 +18,10 @@ Application::Application(const ApplicationSpecs& specs)
 
     m_window = std::make_shared<Window>(m_specs.windowsSpecs);
     m_window->create(this);
+
+    glfwSetKeyCallback(m_window->getHandle(), keyInputCb);
+    glfwSetMouseButtonCallback(m_window->getHandle(), mouseKeyInputCb);
+    glfwSetCursorPosCallback(m_window->getHandle(), mousePosInputCb);
     
     gl2d::init();
     renderer.create(0, m_specs.quadCount);
@@ -58,19 +63,6 @@ void Application::run()
     m_ioThread = std::thread(*m_io);
     m_procThread = std::thread(*m_processor);
 
-    glfwSetKeyCallback(m_window->getHandle(), keyInputCb);
-    glfwSetMouseButtonCallback(m_window->getHandle(), mouseKeyInputCb);
-    glfwSetCursorPosCallback(m_window->getHandle(), mousePosInputCb);
-
-    gl2d::Texture background;
-    gl2d::Texture player_texture;
-
-    player_texture.loadFromFile("resources\\Main.png", true);
-
-    background.loadFromFile("resources\\Mazemap1.png");
-
-    gl2d::TextureAtlas atlas(6, 1);
-
     while (m_running)
     {
         if (m_window->shouldClose())
@@ -78,8 +70,7 @@ void Application::run()
             stop();
             break;
         }
-
-        GameplayData& gameplayData = getRenderBuffer().getReadBuffer();
+        glfwPollEvents();
 
         glm::vec2 clientRect = getFramebufferSize();
         int width = (float)clientRect.x;
@@ -89,17 +80,12 @@ void Application::run()
 
         renderer.updateWindowMetrics(width, height);
 
-        renderer.clearScreen({ 0.1, 0.2, 0.6, 1 });
-
-        renderer.renderRectangle({600, 300, 100, 100}, Colors_White);
-
-        renderer.renderRectangle({ gameplayData.mazePos, gameplayData.mazeSize }, background);
-        
-        renderer.renderRectangle({ gameplayData.playerPos, gameplayData.playerSize }, player_texture, Colors_White, {}, 0);//, atlas.get(gameplayData.atlasPos.x, gameplayData.atlasPos.y, gameplayData.isLeft));
+        m_stateStack.render();
         
         renderer.flush();
 
         m_window->update();
+
         getRenderBuffer().swap();
         glfwPollEvents();
     }
