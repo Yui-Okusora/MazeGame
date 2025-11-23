@@ -5,6 +5,7 @@
 #include <InputEvent/InputEvent.hpp>
 #include <Window/Window.hpp>
 #include <AssetsLoader/AssetsLoader.hpp>
+#include <State/State.hpp>
 
 class IApplication
 {
@@ -24,10 +25,20 @@ public:
 
     //Get time point
     virtual double getTime() = 0;
+
+    //Get Mouse position
+    virtual MousePos getMousePos() = 0;
     
-    //Get input buffer for consuming
-    virtual CircularBuffer<InputEvent>& getInputBuffer() = 0;
+    //Get keyboard input buffer for consuming
+    virtual CircularBuffer<KeyInputEvent>& getKeyInputBuffer() = 0;
+
+    virtual CircularBuffer<MouseEvent>& getMouseKeyBuffer() = 0;
 
     //Get render buffer for consuming
     virtual DoubleBuffer<GameplayData>& getRenderBuffer() = 0;
+
+    //Get renderer
+    virtual gl2d::Renderer2D& getRenderer() = 0;
+
+    virtual StateStack& getStateStack() = 0;
 };

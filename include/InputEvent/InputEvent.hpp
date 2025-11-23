@@ -2,7 +2,7 @@
 
 #include <Core.hpp>
 
-struct InputEvent
+struct KeyInputEvent
 {
     int key;
     int scancode;
@@ -10,6 +10,30 @@ struct InputEvent
     int mods;
 };
 
-struct InputState {
-    std::array<bool, GLFW_KEY_LAST + 1> keyDown{};
+struct MousePos
+{
+    double x;
+    double y;
+};
+
+struct MouseKey
+{
+    int button;
+    int action;
+    int mods;
+};
+
+struct MouseEvent
+{
+    MouseKey key;
+    MousePos pos;
+};
+
+struct KeyInputState {
+    std::array<bool, GLFW_KEY_LAST + 1> keyDown = { false };
+    std::array<bool, GLFW_KEY_LAST + 1> keyPressed = { false };
+    std::array<bool, GLFW_KEY_LAST + 1> keyReleased = { false };
+    std::array<bool, GLFW_MOUSE_BUTTON_LAST + 1> mouseDown = { false };
+    std::array<bool, GLFW_MOUSE_BUTTON_LAST + 1> mousePressed = { false };
+    std::array<bool, GLFW_MOUSE_BUTTON_LAST + 1> mouseReleased = { false };
 };
