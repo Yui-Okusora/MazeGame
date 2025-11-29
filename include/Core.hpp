@@ -12,6 +12,7 @@
 //Self-write libraries
 #include <DoubleBuffer/DoubleBuffer.hpp>
 #include <CircularBuffer/CircularBuffer.hpp>
+#include <CRC32_64/CRC32_64.hpp>
 
 
 // STL Libraries
@@ -31,3 +32,4 @@
 #include <cstdint>
 #include <unordered_map>
 #include <concepts>
+#include <stdint.h>

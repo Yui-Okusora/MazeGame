@@ -40,9 +40,6 @@ public:
 
     CircularBuffer<MouseEvent>& getMouseKeyBuffer() { return m_mouseKeyBuffer; }
 
-    //Get render buffer for consuming
-    DoubleBuffer<GameplayData>& getRenderBuffer() { return m_renderBuffer; }
-
     //Get renderer
     gl2d::Renderer2D& getRenderer() { return renderer; }
 
@@ -85,6 +82,8 @@ private:
     DoubleBuffer<GameplayData> m_renderBuffer;
 
     StateStack m_stateStack;
+
+    CRC32_64 m_crcEngine;
 
     bool m_running = false;
 

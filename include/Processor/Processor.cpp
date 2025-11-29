@@ -1,5 +1,4 @@
 #include <Processor/Processor.hpp>
-#include <Utils/Utils.hpp>
 
 Processor::Processor(IApplication* _app) : app(_app)
 {
@@ -21,7 +20,7 @@ void Processor::operator()()
 
     while (app->getRunningStat())
     {
-        std::cout << "                                       \n                                              \n                                                 \n                                                 \n                                                          \n                                                           \n                                                          \n                                                      \n                                                \n                                                                  \n                                                  \n                                                           \n                                                              \n                                                       \n\x1b[H";
+        //std::cout << "                                       \n                                              \n                                                 \n                                                 \n                                                          \n                                                           \n                                                          \n                                                      \n                                                \n                                                                  \n                                                  \n                                                           \n                                                              \n                                                       \n\x1b[H";
 
         //deltaTime and fixed timestep between frames
         double currentTime = app->getTime();
@@ -31,10 +30,6 @@ void Processor::operator()()
         accumulator += deltaTime;
 
         inputState = {};
-
-        //FPS printing
-        fps = 0.9 * fps + 0.1 * (1.0 / deltaTime);
-        std::cout << "FPS: " << fps << "\n";
 
         // Key inputs handling
         while (!keyInputBuffer.empty())
@@ -77,9 +72,7 @@ void Processor::operator()()
             app->getStateStack().update(timestep);
             accumulator -= timestep;
         }
-        
-        /*// Fill new data to buffer and swap
-        base = gameplayData;
-        renderBuffer.swap();*/
+
+        app->getStateStack().processTransit();
     }
 }

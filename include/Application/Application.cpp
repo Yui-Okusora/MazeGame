@@ -86,7 +86,6 @@ void Application::run()
 
         m_window->update();
 
-        getRenderBuffer().swap();
         glfwPollEvents();
     }
 }

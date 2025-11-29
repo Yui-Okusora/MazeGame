@@ -1,11 +1,11 @@
 #pragma once
 #include <Core.hpp>
 #include <GameplayData/GameplayData.hpp>
-#include <RenderData/RenderData.hpp>
 #include <InputEvent/InputEvent.hpp>
 #include <Window/Window.hpp>
 #include <AssetsLoader/AssetsLoader.hpp>
 #include <State/State.hpp>
+#include <Utils/Utils.hpp>
 
 class IApplication
 {
@@ -33,9 +33,6 @@ public:
     virtual CircularBuffer<KeyInputEvent>& getKeyInputBuffer() = 0;
 
     virtual CircularBuffer<MouseEvent>& getMouseKeyBuffer() = 0;
-
-    //Get render buffer for consuming
-    virtual DoubleBuffer<GameplayData>& getRenderBuffer() = 0;
 
     //Get renderer
     virtual gl2d::Renderer2D& getRenderer() = 0;

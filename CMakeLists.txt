@@ -24,7 +24,7 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/gl2d)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/stb_image)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/stb_truetype)
 
-add_executable (MazeGame "src/MazeGame.cpp" "src/Application.cpp" "src/Window.cpp" "src/Processor.cpp" "src/IO.cpp" "src/AssetsLoader.cpp")
+add_executable (MazeGame "src/MazeGame.cpp" "include/Application/Application.cpp" "include/Window/Window.cpp" "include/Processor/Processor.cpp" "include/IO/IO.cpp" "include/AssetsLoader/AssetsLoader.cpp")
 
 target_compile_features(MazeGame PRIVATE cxx_std_23)
 target_include_directories(MazeGame 
