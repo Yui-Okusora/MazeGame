@@ -1,6 +1,6 @@
 #pragma once
 #include <Core.hpp>
-#include <GameplayData/GameplayData.hpp>
+#include <RenderData/RenderData.hpp>
 #include <InputEvent/InputEvent.hpp>
 #include <Window/Window.hpp>
 #include <AssetsLoader/AssetsLoader.hpp>

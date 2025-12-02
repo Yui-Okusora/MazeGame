@@ -79,7 +79,7 @@ private:
 
     std::atomic<MousePos> m_mousePos;
 
-    DoubleBuffer<GameplayData> m_renderBuffer;
+    DoubleBuffer<RenderData> m_renderBuffer;
 
     StateStack m_stateStack;
 

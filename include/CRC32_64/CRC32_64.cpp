@@ -1,4 +1,4 @@
-#include "CRC32_64.hpp"
+#include <CRC32_64/CRC32_64.hpp>
 
 using Matrix64 = std::array<uint64_t, 64>;
 using Matrix32 = std::array<uint32_t, 32>;

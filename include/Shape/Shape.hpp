@@ -5,62 +5,52 @@
 class Shape
 {
 public:
+    Shape() = default;
+    Shape(const Shape&) = default;
+
     virtual void render(gl2d::Renderer2D* renderer) = 0;
+    virtual Shape* cloneToArena(Arena& a) const = 0;
     glm::vec2 pos = { 0, 0 };
     glm::vec2 size = { 1, 1 };
     gl2d::Texture texture;
-};
-
-class Rect : public Shape
-{
-public:
-    Rect(gl2d::Rect rect, gl2d::TextureAtlas _atlas) : atlas(_atlas)
-    {
-        pos = { rect.x, rect.y };
-        size = { rect.z, rect.w };
-    }
-    void render(gl2d::Renderer2D* renderer)
-    {
-        renderer->renderRectangle({pos, size}, texture, Colors_White, {}, 0, atlas.get(atlasPos.x, atlasPos.y, flip));
-    }
-
-    gl2d::TextureAtlas atlas;
+    gl2d::Color4f color = Colors_White;
+    gl2d::TextureAtlas atlas = { 1, 1 };
     glm::uvec2 atlasPos = { 0, 0 };
     bool flip = false;
     bool noTexture = false;
 };
 
+class Rect : public Shape
+{
+public:
+    Rect();
+    Rect(const Rect& src);
+    Rect(gl2d::Rect rect, gl2d::Color4f _color = Colors_White, gl2d::TextureAtlas _atlas = { 1, 1 });
+    Rect(gl2d::Rect rect, gl2d::Texture _texture, gl2d::Color4f _color = Colors_White, gl2d::TextureAtlas _atlas = { 1, 1 });
+
+    void render(gl2d::Renderer2D* renderer) override;
+
+    Shape* cloneToArena(Arena& a) const override { return a.make<Rect>(*this); }
+};
+
 class Maze : public Shape
 {
 public:
-    Maze() : atlas(15, 1)
-    {
-        pos = { 0, 0 };
-        size = { tileSize.x * mazeSize.x, tileSize.y * mazeSize.y };
-    }
-    void render(gl2d::Renderer2D* renderer)
-    {
-        for (int i = 0; i < mazeSize.y; ++i)
-        {
-            for (int j = 0; j < mazeSize.x; ++j)
-            {
-                glm::ivec2 encodePos = glm::ivec2(j, i) * 2 + 1;
-                int encodeWidth = mazeSize.x * 2 + 1;
-                int tileType = 0;
-                tileType += mazeEncode[encodePos.x + encodeWidth * (encodePos.y - 1)] * 8;
-                tileType += mazeEncode[encodePos.x + encodeWidth * encodePos.y - 1]   * 4;
-                tileType += mazeEncode[encodePos.x + encodeWidth * (encodePos.y + 1)] * 2;
-                tileType += mazeEncode[encodePos.x + encodeWidth * encodePos.y + 1];
+    Maze();
+    Maze(const Maze& src);
+    Maze(glm::vec2 _pos, glm::vec2 _mazeSize, glm::vec2 _tileSize);
 
-                auto vec = atlas.get(tileType - 1, 0);
-
-                renderer->renderRectangle({pos + (tileSize * glm::vec2(j, i)), tileSize}, texture, Colors_White, {}, 0, vec);
-            }
-        }
+    ~Maze()
+    {
+        mazeEncode.~vector();
     }
+
+    void render(gl2d::Renderer2D* renderer) override;
+
+    Shape* cloneToArena(Arena& a) const override { return a.make<Maze>(*this); }
 
     glm::vec2 tileSize = { 64, 64 };
     glm::vec2 mazeSize = { 8, 8 };
-    gl2d::TextureAtlas atlas;
+    glm::vec2 encodeSize = mazeSize * 2.0f + 1.0f;
     std::vector<int> mazeEncode;
 };

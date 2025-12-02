@@ -46,57 +46,16 @@ public:
         }
     }
 
-    void update(double dt)
-    {
-        std::lock_guard<std::mutex> lock(updateMutex);
-        for (auto& t : m_activeState)
-        {
-            if (!t) continue;
-            if (t->suspendUpdate) continue;
-            t->update(dt);
-        }
-    }
+    void update(double dt);
 
-    void render()
-    {
-        std::lock_guard<std::mutex> lock(renderMutex);
-        for (auto& t : m_activeState)
-        {
-            if (!t) continue;
-            if (t->suspendRender) continue;
-            t->render();
-        }
-    }
+    void render();
 
     void queueTransit(State* current, std::string label)
     {
         queue.push_back({ current, label });
     }
 
-    void processTransit()
-    {
-        if (queue.empty()) return;
-
-        std::lock_guard<std::mutex> lock1(updateMutex);
-        std::lock_guard<std::mutex> lock2(renderMutex);
-
-        for (auto& query : queue)
-        {
-            auto it = m_activeState.begin();
-
-            while (it->get() != query.first) ++it;
-
-            if (it == m_activeState.end()) continue;
-
-            m_inactiveState[(*it)->label] = std::move(*it);
-
-            *it = std::move(m_inactiveState[query.second]);
-
-            m_inactiveState.erase(query.second);
-        }
-
-        queue.clear();
-    }
+    void processTransit();
 private:
     std::vector<std::unique_ptr<State>> m_activeState;
     std::vector<std::pair<State*, std::string>> queue;

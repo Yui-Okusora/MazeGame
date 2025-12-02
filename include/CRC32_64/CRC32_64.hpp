@@ -1,5 +1,6 @@
 #pragma once
 #include <array>
+#include <stdint.h>
 
 class CRC32_64
 {
@@ -50,12 +51,12 @@ public:
 	void reset32() { crc32 = 0xFFFFFFFF; }
 	void reset64() { crc64 = 0xFFFFFFFFFFFFFFFF; }
 
-	void finallize() {
-		finallize32();
-		finallize64();
+	void finalize() {
+		finalize32();
+		finalize64();
 	}
-	void finallize32() { crc32 ^= 0xFFFFFFFF; }
-	void finallize64() { crc64 ^= 0xFFFFFFFFFFFFFFFF; }
+	void finalize32() { crc32 ^= 0xFFFFFFFF; }
+	void finalize64() { crc64 ^= 0xFFFFFFFFFFFFFFFF; }
 
 	uint32_t& getCRC32() { return crc32; }
 	uint64_t& getCRC64() { return crc64; }
