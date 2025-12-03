@@ -15,7 +15,8 @@ void destruct_fn(void* p) {
 class Arena
 {
 public:
-    explicit Arena(size_t capacity = 1 << 20) { // default 1MB
+    explicit Arena(size_t _capacity = 1 << 20) : capacity(_capacity)
+    { // default 1MB
         buf.resize(capacity);
         offset = 0;
     }
@@ -23,8 +24,10 @@ public:
     Arena(const Arena&) = delete;
     Arena& operator=(const Arena&) = delete;
 
-    Arena(Arena&&) = default;
-    Arena& operator=(Arena&&) = default;
+    Arena(Arena&&) = delete;
+    Arena& operator=(Arena&&) = delete;
+
+    ~Arena() { reset(); }
 
     void* allocate(size_t size, size_t alignment = alignof(std::max_align_t)) {
         size_t cur = (size_t)buf.data() + offset;
@@ -37,7 +40,7 @@ public:
     }
 
     void reset() 
-    { 
+    {
         for (auto& rec : arenaObjects) {
             rec.destruct(rec.ptr);
         }
@@ -46,7 +49,6 @@ public:
     }
 
     size_t size() { return offset; }
-    size_t capacity() { return buf.capacity(); }
 
     template<typename T, typename... Args>
     T* make(Args&&... args) {
@@ -62,4 +64,5 @@ private:
     std::vector<uint8_t> buf;
     std::vector<AllocRecord> arenaObjects;
     size_t offset = 0;
+    size_t capacity = 0;
 };

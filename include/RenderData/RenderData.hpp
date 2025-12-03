@@ -7,15 +7,19 @@ struct RenderData
 {
     RenderData() = default;
 
-    RenderData(const RenderData&) = delete;
-    RenderData& operator=(const RenderData&) = delete;
+    RenderData(const RenderData& src)
+    {
+        cloneFrom(src);
+    }
 
-    RenderData(RenderData&&) = default;
-    RenderData& operator=(RenderData&&) = default;
+    RenderData& operator=(const RenderData& src)
+    {
+        cloneFrom(src);
+        return *this;
+    }
 
-    std::vector<Shape*> shapes;
-
-    Arena arena;
+    RenderData(RenderData&&) = delete;
+    RenderData& operator=(RenderData&&) = delete;
 
     template<typename T, typename... Args>
     T* addShape(Args&&... args)
@@ -34,5 +38,9 @@ struct RenderData
             shapes.push_back(s->cloneToArena(arena));
         }
     }
+
+    std::vector<Shape*> shapes;
+
+    Arena arena;
 };
 

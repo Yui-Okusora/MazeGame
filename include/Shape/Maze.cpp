@@ -1,8 +1,18 @@
-#include <Shape/Shape.hpp>
+#include <Shape/Maze.hpp>
 
 Maze::Maze() {}
 
-Maze::Maze(const Maze& src) : Shape(src)
+Maze::Maze(const Maze& src) noexcept : Shape(src)
+{
+    tileSize = src.tileSize;
+    mazeSize = src.mazeSize;
+    encodeSize = src.encodeSize;
+    mazeEncode.resize(src.mazeEncode.size());
+    std::copy(src.mazeEncode.begin(), src.mazeEncode.begin() + src.mazeEncode.size(), mazeEncode.begin());
+}
+
+Maze::Maze(Maze&& src) noexcept
+    : Shape(src)
 {
     tileSize = src.tileSize;
     mazeSize = src.mazeSize;
@@ -21,6 +31,7 @@ Maze::Maze(glm::vec2 _pos, glm::vec2 _mazeSize, glm::vec2 _tileSize)
 
 void Maze::render(gl2d::Renderer2D* renderer)
 {
+    if (mazeEncode.empty()) return;
     for (int i = 0; i < mazeSize.y; ++i)
     {
         for (int j = 0; j < mazeSize.x; ++j)

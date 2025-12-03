@@ -17,7 +17,7 @@ public:
     {
         crc.reset64();
 
-        file.open("save.txt", std::ios::binary | std::ios::out | std::ios::app | std::ios::trunc);
+        
 
         uint64_t dataCRC = crc.appendCRC64((uint8_t*)&data, sizeof(data));
 
@@ -37,6 +37,8 @@ public:
         crc.finalize64();
 
         header.crc = crc.getCRC64();
+
+        file.open("save.txt", std::ios::binary | std::ios::out | std::ios::trunc);
 
         file.write((char*)&header, sizeof(header));
         file.write((char*)&data, sizeof(data));

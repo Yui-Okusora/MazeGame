@@ -6,6 +6,7 @@
 #include <GameMechanics/PathFinding.hpp>
 #include <Application/IApplication.hpp>
 #include <Shape/UI.hpp>
+#include <Shape/Maze.hpp>
 #include <SaveFile/SaveLoad.hpp>
 
 

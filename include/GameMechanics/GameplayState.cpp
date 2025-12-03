@@ -39,11 +39,15 @@ void GameplayState::handleInput(const KeyInputState& in)
     if (in.keyPressed[GLFW_KEY_U])
     {
         sl.save(data);
+        std::cout << "Saved!\n";
     }
 
     if (in.keyPressed[GLFW_KEY_L])
     {
         data = sl.load();
+        player->pos = data.playerPos;
+        enemy->pos = data.enemyPos;
+        std::cout << "Loaded!\n";
     }
 
     MousePos mousePos = app->getMousePos();
@@ -121,30 +125,20 @@ void GameplayState::update(double dt)
             data.enemyPos += (glm::ivec2(path[1].first, path[1].second) - enemyMZPos) * 64;
     }
 
-    playerPos.x = std::lerp((double)playerPos.x, (double)data.playerPos.x, 0.5);
-    playerPos.y = std::lerp((double)playerPos.y, (double)data.playerPos.y, 0.5);
+    playerPos = Utils::lerp2(playerPos, data.playerPos, 0.5f, 3.0f);
 
-    if (std::abs(playerPos.x - data.playerPos.x) < 3.0f) playerPos.x = data.playerPos.x;
-    if (std::abs(playerPos.y - data.playerPos.y) < 3.0f) playerPos.y = data.playerPos.y;
-
-    enemyPos.x = std::lerp((double)enemyPos.x, (double)data.enemyPos.x, 0.5);
-    enemyPos.y = std::lerp((double)enemyPos.y, (double)data.enemyPos.y, 0.5);
-
-    if (std::abs(enemyPos.x - data.enemyPos.x) < 3.0f) enemyPos.x = data.enemyPos.x;
-    if (std::abs(enemyPos.y - data.enemyPos.y) < 3.0f) enemyPos.y = data.enemyPos.y;
+    enemyPos = Utils::lerp2(enemyPos, data.enemyPos, 0.5f, 3.0f);
 
     //Get buffer to send to render thread
     RenderData& base = m_renderBuffer.getWriteBuffer();
-    base.cloneFrom(renderData);
-
-    //std::cout << base.arena.size() << "\n";
+    base = renderData;
 
     m_renderBuffer.swap();
 }
 
 void GameplayState::render()
 {
-    RenderData& renderData = m_renderBuffer.getReadBuffer();
+    RenderData renderData = m_renderBuffer.getReadBuffer();
 
     gl2d::Renderer2D& renderer = app->getRenderer();
 
