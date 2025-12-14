@@ -19,6 +19,8 @@ public:
 
     void onEnter() override;
 
+    void onExit() override;
+
     void update(double dt) override;
 
     void render() override;
@@ -29,7 +31,7 @@ private:
 
     glm::vec2 move = {};
 
-    GameplayData data;
+    GameplayData& data;
 
     SaveLoad sl;
 
@@ -60,6 +62,13 @@ private:
     Rect* enemy = nullptr;
 
     Button* resetBtn = nullptr;
+    Button* undoBtn = nullptr;
+    Button* menuBtn = nullptr;
+
+    TextBox* timeDisplay = nullptr;
+    TextBox* scoreDisplay = nullptr;
+
+    gl2d::Font font;
 
     RenderData renderData;
 

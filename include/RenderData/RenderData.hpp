@@ -12,14 +12,22 @@ struct RenderData
         cloneFrom(src);
     }
 
-    RenderData& operator=(const RenderData& src)
+    RenderData& operator=(const RenderData& src) noexcept
     {
         cloneFrom(src);
         return *this;
     }
 
     RenderData(RenderData&&) = delete;
-    RenderData& operator=(RenderData&&) = delete;
+    RenderData& operator=(RenderData&& src) noexcept
+    {
+        if (this != &src)
+        {
+            arena = std::move(src.arena);
+            shapes = std::move(src.shapes);
+        }
+        return *this;
+    }
 
     template<typename T, typename... Args>
     T* addShape(Args&&... args)
@@ -37,6 +45,12 @@ struct RenderData
         {
             shapes.push_back(s->cloneToArena(arena));
         }
+    }
+
+    void reset()
+    {
+        shapes.clear();
+        arena.reset();
     }
 
     std::vector<Shape*> shapes;

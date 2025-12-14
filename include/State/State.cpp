@@ -33,13 +33,20 @@ void StateStack::processTransit()
     {
         auto it = m_activeState.begin();
 
-        while (it->get() != query.first) ++it;
-
+        while (it->get() != query.first)
+        {
+            ++it;
+            if (it == m_activeState.end()) break;
+        }
         if (it == m_activeState.end()) continue;
+
+        (*it)->onExit();
 
         m_inactiveState[(*it)->label] = std::move(*it);
 
         *it = std::move(m_inactiveState[query.second]);
+
+        (*it)->onEnter();
 
         m_inactiveState.erase(query.second);
     }

@@ -12,6 +12,7 @@ struct ApplicationSpecs
     size_t quadCount = 2000;
     size_t keyInputBufSize = 512;
     size_t mouseKeyBufSize = 512;
+    void*  sharedCTX = nullptr;
 };
 
 class Application : public IApplication
@@ -33,12 +34,21 @@ public:
     //Get time point
     double getTime();
 
+    //Get shared context
+    void* getCTX() { return sharedCTX; }
+
+    //Get Mouse position
     MousePos getMousePos() { return m_mousePos.load(std::memory_order_relaxed); }
 
     //Get keyboard input buffer for consuming
     CircularBuffer<KeyInputEvent>& getKeyInputBuffer() { return m_keyInputBuffer; }
 
     CircularBuffer<MouseEvent>& getMouseKeyBuffer() { return m_mouseKeyBuffer; }
+
+    //Get/Apply window specs
+    WindowSpecs& getWindowSpecs() { return m_specs.windowsSpecs; }
+
+    void applyWindowSetting() { m_window->applySettings(); }
 
     //Get renderer
     gl2d::Renderer2D& getRenderer() { return renderer; }
@@ -51,6 +61,13 @@ public:
     void pushState()
     {
         m_stateStack.addTrack(std::make_unique<T>(this));
+    }
+
+    template<typename T>
+        requires(std::is_base_of_v<State, T>)
+    void pushInactive()
+    {
+        m_stateStack.addInactive(std::make_unique<T>(this));
     }
 
 private:
@@ -85,7 +102,9 @@ private:
 
     CRC32_64 m_crcEngine;
 
-    bool m_running = false;
+    void* sharedCTX = nullptr;
 
     clock::time_point m_startTimePoint;
+
+    bool m_running = false;
 };

@@ -13,6 +13,8 @@ Application::Application(const ApplicationSpecs& specs)
 
     m_running = true;
 
+    sharedCTX = m_specs.sharedCTX;
+
     if (m_specs.windowsSpecs.title.empty())
         m_specs.windowsSpecs.title = m_specs.appTitle;
 

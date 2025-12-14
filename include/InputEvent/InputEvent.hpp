@@ -36,4 +36,5 @@ struct KeyInputState {
     std::array<bool, GLFW_MOUSE_BUTTON_LAST + 1> mouseDown = { false };
     std::array<bool, GLFW_MOUSE_BUTTON_LAST + 1> mousePressed = { false };
     std::array<bool, GLFW_MOUSE_BUTTON_LAST + 1> mouseReleased = { false };
+    std::vector<short> keyBuffer;
 };

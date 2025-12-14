@@ -17,8 +17,7 @@ Maze::Maze(Maze&& src) noexcept
     tileSize = src.tileSize;
     mazeSize = src.mazeSize;
     encodeSize = src.encodeSize;
-    mazeEncode.resize(src.mazeEncode.size());
-    std::copy(src.mazeEncode.begin(), src.mazeEncode.begin() + src.mazeEncode.size(), mazeEncode.begin());
+    mazeEncode = std::move(src.mazeEncode);
 }
 
 Maze::Maze(glm::vec2 _pos, glm::vec2 _mazeSize, glm::vec2 _tileSize)
@@ -26,6 +25,15 @@ Maze::Maze(glm::vec2 _pos, glm::vec2 _mazeSize, glm::vec2 _tileSize)
 {
     pos = _pos;
     size = { tileSize.x * mazeSize.x, tileSize.y * mazeSize.y };
+    atlas = { 15, 1 };
+}
+
+Maze::Maze(Shape* _parent, glm::vec2 _pos, glm::vec2 _mazeSize, glm::vec2 _tileSize)
+    : mazeSize(_mazeSize), tileSize(_tileSize)
+{
+    pos = _pos;
+    size = { tileSize.x * mazeSize.x, tileSize.y * mazeSize.y };
+    parent = _parent;
     atlas = { 15, 1 };
 }
 
@@ -46,7 +54,7 @@ void Maze::render(gl2d::Renderer2D* renderer)
 
             auto vec = atlas.get(tileType - 1, 0);
 
-            renderer->renderRectangle({ pos + (tileSize * glm::vec2(j, i)), tileSize }, texture, Colors_White, {}, 0, vec);
+            renderer->renderRectangle({ getAbsPos() + (tileSize * glm::vec2(j, i)), tileSize}, texture, Colors_White, {}, 0, vec);
         }
     }
 }

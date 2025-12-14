@@ -35,3 +35,5 @@
 #include <unordered_map>
 #include <concepts>
 #include <stdint.h>
+
+#define FONT_PATH "C:\\Windows\\Fonts\\"

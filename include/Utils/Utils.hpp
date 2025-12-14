@@ -23,4 +23,16 @@ public:
 
         return a;
     }
+
+    static std::string timeToDate(double timestamp)
+    {
+        std::string time = "";
+        time += std::to_string(long long(timestamp) / 3600) + ':';
+        timestamp = double(long long(timestamp) % 3600) + (timestamp - (double)long long(timestamp));
+        time += std::to_string(long long(timestamp) / 60) + ':';
+        timestamp = double(long long(timestamp) % 60) + (timestamp - (double)long long(timestamp));
+        time += std::to_string(long long(timestamp));
+
+        return time;
+    }
 };

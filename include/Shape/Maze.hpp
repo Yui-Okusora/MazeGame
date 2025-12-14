@@ -6,9 +6,10 @@ class Maze : public Shape
 {
 public:
     Maze();
-    explicit Maze(const Maze&) noexcept;
-    explicit Maze(Maze&&) noexcept;
+    explicit Maze(const Maze& src) noexcept;
+    explicit Maze(Maze&& src) noexcept;
     Maze(glm::vec2 _pos, glm::vec2 _mazeSize, glm::vec2 _tileSize);
+    Maze(Shape* _parent, glm::vec2 _pos, glm::vec2 _mazeSize, glm::vec2 _tileSize);
 
     ~Maze()
     {

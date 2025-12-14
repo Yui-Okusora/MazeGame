@@ -29,12 +29,17 @@ void Processor::operator()()
 
         accumulator += deltaTime;
 
-        inputState = {};
+        inputState.keyPressed = {};
+        inputState.keyReleased = {};
+        inputState.mousePressed = {};
+        inputState.mouseReleased = {};
 
         // Key inputs handling
         while (!keyInputBuffer.empty())
         {
             auto event = keyInputBuffer.pop();
+
+            if (event.key == GLFW_KEY_UNKNOWN) continue;
 
             if (event.action == GLFW_PRESS)
             {

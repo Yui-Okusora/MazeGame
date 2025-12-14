@@ -2,60 +2,34 @@
 #include <Application/Application.hpp>
 #include <Utils/Utils.hpp>
 #include <GameMechanics/GameplayState.hpp>
-
-class PauseMenu : public State
-{
-public:
-    PauseMenu(IApplication* _app)
-    {
-        app = _app;
-        label = "PauseMenu";
-    }
-
-    void onEnter()
-    {
-
-    }
-
-    void handleInput(const KeyInputState& in) override
-    {
-        if (in.keyPressed[GLFW_KEY_P])
-        {
-            app->getStateStack().queueTransit(this, "GameplayState");
-        }
-    }
-
-    void update()
-    {
-
-    }
-
-    void render() override
-    {
-        gl2d::Renderer2D& renderer = app->getRenderer();
-
-        renderer.clearScreen({ 1, 1, 1, 1 });
-    }
-};
+#include <GameMechanics/GameMenu.hpp>
+#include <GameMechanics/MainMenu.hpp>
 
 int main() {
+    GameplayData data;
+
     ApplicationSpecs specs = {
         .appTitle = "Test",
         .windowsSpecs = {
-            .width = 800,
+            .width = 1000,
             .height = 600,
             .resizable = true,
-            .vSync = true
+            .fullscreen = true,
+            .vSync = true,
+            .fps = 60
         }
     };
+
+    specs.sharedCTX = &data;
 
     Application app(specs);
 
     //app.getStateStack().resizeStack(2);
 
-    app.pushState<GameplayState>();
+    app.pushState<MainMenu>();
 
-    app.getStateStack().addInactive(std::make_unique<PauseMenu>(&app));
+    app.pushInactive<PauseMenu>();
+    app.pushInactive<GameplayState>();
 
     app.run();
 

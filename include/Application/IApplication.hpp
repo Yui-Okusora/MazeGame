@@ -26,6 +26,9 @@ public:
     //Get time point
     virtual double getTime() = 0;
 
+    //Get shared context
+    virtual void* getCTX() = 0;
+
     //Get Mouse position
     virtual MousePos getMousePos() = 0;
     
@@ -33,6 +36,11 @@ public:
     virtual CircularBuffer<KeyInputEvent>& getKeyInputBuffer() = 0;
 
     virtual CircularBuffer<MouseEvent>& getMouseKeyBuffer() = 0;
+
+    //Get/Apply window specs
+    virtual WindowSpecs& getWindowSpecs() = 0;
+
+    virtual void applyWindowSetting() = 0;
 
     //Get renderer
     virtual gl2d::Renderer2D& getRenderer() = 0;
