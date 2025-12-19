@@ -8,7 +8,9 @@ struct WindowSpecs
     int width = 800;
     int height = 600;
     bool resizable = true;
+    bool fullscreen = true;
     bool vSync = true;
+    int fps = 60;
 };
 
 class Window
@@ -18,6 +20,7 @@ public:
     ~Window();
 
     void create(void* applicationCtx);
+    void applySettings();
     void destroy();
     void update();
 

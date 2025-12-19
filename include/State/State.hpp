@@ -16,36 +16,50 @@ public:
     virtual void render() {}
 public:
     IApplication* app = nullptr;
-
     bool suspendUpdate = false;
     bool suspendRender = false;
+    std::string label = "";
 };
 
 class StateStack {
-    std::vector<std::unique_ptr<State>> tracks;
 public:
-    void addTrack(std::unique_ptr<State> s) {
+    void resizeStack(size_t size) { m_activeState.reserve(size); }
+
+    void addTrack(std::unique_ptr<State> s)
+    {
         s->onEnter();
-        tracks.push_back(std::move(s));
+        m_activeState.push_back(std::move(s));
     }
 
-    void handleInput(const KeyInputState& in) {
-        for (auto& t : tracks) t->handleInput(in);
+    void addInactive(std::unique_ptr<State> s)
+    {
+        s->onEnter();
+        m_inactiveState[s->label] = std::move(s);
     }
 
-    void update(double dt) {
-        for (auto& t : tracks) {
-            if (t->suspendUpdate) continue;
-            t->update(dt);
+    void handleInput(const KeyInputState& in)
+    {
+        for (auto& t : m_activeState)
+        {
+            if (!t) continue;
+            t->handleInput(in);
         }
     }
 
-    void render() {
-        for (auto& t : tracks) {
-            if (t->suspendRender) continue;
-            t->render();
-        }
+    void update(double dt);
+
+    void render();
+
+    void queueTransit(State* current, std::string label)
+    {
+        queue.push_back({ current, label });
     }
 
-    // utilities to replace/remove tracks, etc.
+    void processTransit();
+private:
+    std::vector<std::unique_ptr<State>> m_activeState;
+    std::vector<std::pair<State*, std::string>> queue;
+    std::unordered_map<std::string, std::unique_ptr<State>> m_inactiveState;
+    std::mutex updateMutex;
+    std::mutex renderMutex;
 };

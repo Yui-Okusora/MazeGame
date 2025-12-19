@@ -5,62 +5,75 @@
 class Shape
 {
 public:
+    Shape() = default;
+    Shape(const Shape&) = default;
+
     virtual void render(gl2d::Renderer2D* renderer) = 0;
+    virtual Shape* cloneToArena(Arena& a) const = 0;
+
+    glm::vec2 getAnchor()
+    {
+        if (parent) return parent->getAbsPos();
+        return {};
+    }
+
+    glm::vec2& getRelPos() { return pos; }
+    glm::vec2 getAbsPos() { return getAnchor() + pos; }
+
+    void setAnimation(int frame, double duration, double dt, bool _flip = false)
+    {
+        this->frame = frame;
+        this->duration = duration;
+        this->dt = dt;
+        this->flip = _flip;
+    }
+
+    void runAnimation()
+    {
+        if (frameSize.size() <= frame) return;
+        accumulator += dt;
+        if (frame != atlasPos.y) atlasPos.x = 0;
+
+        atlasPos.y = frame;
+
+        if (accumulator >= (duration / (double)frameSize[frame]))
+        {
+            accumulator -= (duration / (double)frameSize[frame]);
+            atlasPos.x = (++atlasPos.x) % frameSize[frame];
+        }
+    }
+
     glm::vec2 pos = { 0, 0 };
     glm::vec2 size = { 1, 1 };
+    Shape* parent = nullptr;
     gl2d::Texture texture;
+    gl2d::Color4f color = Colors_White;
+    gl2d::TextureAtlas atlas = { 1, 1 };
+    glm::uvec2 atlasPos = { 0, 0 };
+
+    int frame = 0;
+    std::vector<int> frameSize;
+    double accumulator = 0;
+    double duration = 0;
+    double dt = 0;
+
+    bool flip = false;
+    bool noTexture = false;
 };
 
 class Rect : public Shape
 {
 public:
-    Rect(gl2d::Rect rect, gl2d::TextureAtlas _atlas) : atlas(_atlas)
-    {
-        pos = { rect.x, rect.y };
-        size = { rect.z, rect.w };
-    }
-    void render(gl2d::Renderer2D* renderer)
-    {
-        renderer->renderRectangle({pos, size}, texture, Colors_White, {}, 0, atlas.get(atlasPos.x, atlasPos.y, flip));
-    }
+    Rect();
+    Rect(const Rect& src);
+    
+    Rect(gl2d::Rect rect, gl2d::Color4f _color = Colors_White);
+    Rect(gl2d::Rect rect, gl2d::Texture _texture, gl2d::Color4f _color = Colors_White, gl2d::TextureAtlas _atlas = { 1, 1 }, const std::vector<int>& _frameSize = {});
+    
+    Rect(Shape* _parent, gl2d::Rect rect, gl2d::Color4f _color = Colors_White);
+    Rect(Shape* _parent, gl2d::Rect rect, gl2d::Texture _texture, gl2d::Color4f _color = Colors_White, gl2d::TextureAtlas _atlas = { 1, 1 }, const std::vector<int>& _frameSize = {});
 
-    gl2d::TextureAtlas atlas;
-    glm::uvec2 atlasPos = { 0, 0 };
-    bool flip = false;
-    bool noTexture = false;
-};
+    void render(gl2d::Renderer2D* renderer) override;
 
-class Maze : public Shape
-{
-public:
-    Maze() : atlas(15, 1)
-    {
-        pos = { 0, 0 };
-        size = { tileSize.x * mazeSize.x, tileSize.y * mazeSize.y };
-    }
-    void render(gl2d::Renderer2D* renderer)
-    {
-        for (int i = 0; i < mazeSize.y; ++i)
-        {
-            for (int j = 0; j < mazeSize.x; ++j)
-            {
-                glm::ivec2 encodePos = glm::ivec2(j, i) * 2 + 1;
-                int encodeWidth = mazeSize.x * 2 + 1;
-                int tileType = 0;
-                tileType += mazeEncode[encodePos.x + encodeWidth * (encodePos.y - 1)] * 8;
-                tileType += mazeEncode[encodePos.x + encodeWidth * encodePos.y - 1]   * 4;
-                tileType += mazeEncode[encodePos.x + encodeWidth * (encodePos.y + 1)] * 2;
-                tileType += mazeEncode[encodePos.x + encodeWidth * encodePos.y + 1];
-
-                auto vec = atlas.get(tileType - 1, 0);
-
-                renderer->renderRectangle({pos + (tileSize * glm::vec2(j, i)), tileSize}, texture, Colors_White, {}, 0, vec);
-            }
-        }
-    }
-
-    glm::vec2 tileSize = { 64, 64 };
-    glm::vec2 mazeSize = { 8, 8 };
-    gl2d::TextureAtlas atlas;
-    std::vector<int> mazeEncode;
+    Shape* cloneToArena(Arena& a) const override { return a.make<Rect>(*this); }
 };

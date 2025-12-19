@@ -1,57 +1,60 @@
 #pragma once
 
 #include <Core.hpp>
-
-struct Mesh
-{
-    GLuint vao = 0;
-    GLuint vbo = 0;
-    GLuint ebo = 0;
-    GLsizei indexCount = 0;
-};
-
-enum class RenderPass {
-    Forward,
-    Shadow,
-    Depth,
-    GBuffer
-};
-
-struct Material {
-    // Shaders for different passes
-    std::unordered_map<RenderPass, GLuint> shaders;
-
-    // Textures for this surface
-    GLuint albedoTex = 0;
-    GLuint normalTex = 0;
-    GLuint roughnessTex = 0;
-    GLuint metallicTex = 0;
-
-    // Uniform parameters
-    glm::vec4 baseColor = glm::vec4(1.0f);
-    float roughness = 0.5f;
-    float metallic = 0.0f;
-};
-
-struct RenderItem
-{
-    Mesh mesh;
-    std::shared_ptr<Material> material;
-    std::vector<glm::mat4> modelMatrices;
-};
-
-struct CameraData
-{
-    glm::mat4 view;
-    glm::mat4 projection;
-    glm::vec3 position;
-    glm::vec3 forward;
-
-};
+#include <Shape/Shape.hpp>
 
 struct RenderData
 {
-    CameraData camera;
-    std::vector<RenderItem> batches;
-    glm::vec4 clearColor{ 0.1f, 0.1f, 0.1f, 1.0f };
+    RenderData() = default;
+
+    RenderData(const RenderData& src)
+    {
+        cloneFrom(src);
+    }
+
+    RenderData& operator=(const RenderData& src) noexcept
+    {
+        cloneFrom(src);
+        return *this;
+    }
+
+    RenderData(RenderData&&) = delete;
+    RenderData& operator=(RenderData&& src) noexcept
+    {
+        if (this != &src)
+        {
+            arena = std::move(src.arena);
+            shapes = std::move(src.shapes);
+        }
+        return *this;
+    }
+
+    template<typename T, typename... Args>
+    T* addShape(Args&&... args)
+    {
+        T* ptr = arena.make<T>(std::forward<Args>(args)...);
+        shapes.push_back(ptr);
+        return ptr;
+    }
+
+    void cloneFrom(const RenderData& src) {
+        shapes.clear();
+        shapes.reserve(src.shapes.size());
+        arena.reset();
+        for (Shape* s : src.shapes)
+        {
+            shapes.push_back(s->cloneToArena(arena));
+        }
+    }
+
+    void reset()
+    {
+        shapes.clear();
+        arena.reset();
+    }
+
+    std::vector<Shape*> shapes;
+
+    Arena arena;
 };
+

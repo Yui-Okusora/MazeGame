@@ -12,10 +12,13 @@
 //Self-write libraries
 #include <DoubleBuffer/DoubleBuffer.hpp>
 #include <CircularBuffer/CircularBuffer.hpp>
+#include <CRC32_64/CRC32_64.hpp>
+#include <Arena/Arena.hpp>
 
 
 // STL Libraries
 #include <iostream>
+#include <fstream>
 #include <filesystem>
 #include <memory>
 #include <thread>
@@ -31,3 +34,6 @@
 #include <cstdint>
 #include <unordered_map>
 #include <concepts>
+#include <stdint.h>
+
+#define FONT_PATH "C:\\Windows\\Fonts\\"

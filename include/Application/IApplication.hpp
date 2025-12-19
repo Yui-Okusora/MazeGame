@@ -1,11 +1,11 @@
 #pragma once
 #include <Core.hpp>
-#include <GameplayData/GameplayData.hpp>
 #include <RenderData/RenderData.hpp>
 #include <InputEvent/InputEvent.hpp>
 #include <Window/Window.hpp>
 #include <AssetsLoader/AssetsLoader.hpp>
 #include <State/State.hpp>
+#include <Utils/Utils.hpp>
 
 class IApplication
 {
@@ -26,6 +26,9 @@ public:
     //Get time point
     virtual double getTime() = 0;
 
+    //Get shared context
+    virtual void* getCTX() = 0;
+
     //Get Mouse position
     virtual MousePos getMousePos() = 0;
     
@@ -34,8 +37,10 @@ public:
 
     virtual CircularBuffer<MouseEvent>& getMouseKeyBuffer() = 0;
 
-    //Get render buffer for consuming
-    virtual DoubleBuffer<GameplayData>& getRenderBuffer() = 0;
+    //Get/Apply window specs
+    virtual WindowSpecs& getWindowSpecs() = 0;
+
+    virtual void applyWindowSetting() = 0;
 
     //Get renderer
     virtual gl2d::Renderer2D& getRenderer() = 0;
