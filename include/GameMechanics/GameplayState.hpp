@@ -7,7 +7,7 @@
 #include <Application/IApplication.hpp>
 #include <Shape/UI.hpp>
 #include <Shape/Maze.hpp>
-#include <SaveFile/SaveLoad.hpp>
+#include <SaveFile/SaveManager.hpp>
 
 
 class GameplayState : public State
@@ -26,44 +26,38 @@ public:
     void render() override;
 
 private:
+    gl2d::Texture gameplayBgTexture;
+    gl2d::Texture statusBgTexture;
+    gl2d::Texture statBgTexture;
+    gl2d::Texture goalTexture;
     gl2d::Texture playerTexture;
+    gl2d::Texture enemy1Texture;
+    gl2d::Texture enemy2Texture;
+    gl2d::Texture enemy3Texture;
     gl2d::Texture mazeTexture;
+    gl2d::Texture mazeBgTexture;
+    gl2d::Texture undoTexture;
+    gl2d::Texture resetTexture;
+    gl2d::Texture pauseTexture;
 
     glm::vec2 move = {};
+    const glm::vec2 charSize = { 64, 64 };
 
     GameplayData& data;
 
-    SaveLoad sl;
-
-    std::vector<int> maze2 =
-    {// 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 
-        //   1   2   3   4   5   6   7   8
-        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,//1
-        0,1,1,1,0,1,1,1,0,1,1,1,1,1,1,1,0,//2 1
-        0,1,0,0,0,1,0,1,0,1,0,0,0,0,0,1,0,//3
-        0,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,0,//4 2
-        0,1,0,1,0,0,0,0,0,0,0,1,0,1,0,1,0,//5
-        0,1,0,1,1,1,1,1,1,1,1,1,0,1,0,1,0,//6 3
-        0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,1,0,//7
-        0,1,1,1,1,1,0,1,0,1,1,1,0,1,0,1,0,//8 4
-        0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,//9
-        0,1,0,1,1,1,0,1,1,1,1,1,0,1,1,1,0,//0 5
-        0,1,0,1,0,0,0,1,0,0,0,0,0,1,0,0,0,//1
-        0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,0,//2 6
-        0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,1,0,//3
-        0,1,1,1,0,1,0,1,1,1,0,1,1,1,0,1,0,//4 7
-        0,1,0,1,0,1,0,1,0,0,0,0,0,0,0,1,0,//5
-        0,1,0,1,1,1,1,1,0,1,1,1,1,1,1,1,0,//6 8
-        0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0 //7
-    };
-
     Maze* maze = nullptr;
+    Rect* mazeBg = nullptr;
+    Rect* background = nullptr;
+    Rect* goal = nullptr;
+    Rect* statusBg = nullptr;
+    Rect* timeBg = nullptr;
+    Rect* scoreBg = nullptr;
     Rect* player = nullptr;
-    Rect* enemy = nullptr;
+    std::vector<Rect*> enemies{};
 
     Button* resetBtn = nullptr;
     Button* undoBtn = nullptr;
-    Button* menuBtn = nullptr;
+    Button* pauseBtn = nullptr;
 
     TextBox* timeDisplay = nullptr;
     TextBox* scoreDisplay = nullptr;
@@ -71,6 +65,16 @@ private:
     gl2d::Font font;
 
     RenderData renderData;
+
+    ViewportScale vp = {};
+
+    bool undoing = false;
+    bool doneMove = false;
+    bool doneUndo = false;
+
+    Sound bgm{AudioCategory::Music};
+
+    UI ui;
 
     DoubleBuffer<RenderData> m_renderBuffer;
 };

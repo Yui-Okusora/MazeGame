@@ -5,19 +5,33 @@ GameplayState::GameplayState(IApplication* _app)
 {
     app = _app;
     label = "GameplayState";
-    playerTexture.loadFromFile("resources\\Main2.png", true);
-    mazeTexture.loadFromFile("resources\\Maze1.png", true);
-    font.createFromFile("resources\\BoldPixels.ttf");
+    playerTexture.loadFromFile(ASSETS_PATH "Main.png", true);
+    gameplayBgTexture.loadFromFile(ASSETS_PATH "game background.png", true);
+    statusBgTexture.loadFromFile(ASSETS_PATH "status board.png", true);
+    statBgTexture.loadFromFile(ASSETS_PATH "text box.png", true);
+
+    enemy1Texture.loadFromFile(ASSETS_PATH "TTung.png", true);
+    enemy2Texture.loadFromFile(ASSETS_PATH "TTinh.png", true);
+    enemy3Texture.loadFromFile(ASSETS_PATH "TQuan.png", true);
+    goalTexture.loadFromFile(ASSETS_PATH "goal.png", true);
+
+    mazeTexture.loadFromFile(ASSETS_PATH "Maze.png", true);
+    mazeBgTexture.loadFromFile(ASSETS_PATH "wall.png", true);
+    undoTexture.loadFromFile(ASSETS_PATH "Undo button.png", true);
+    resetTexture.loadFromFile(ASSETS_PATH "Reset button.png", true);
+    pauseTexture.loadFromFile(ASSETS_PATH "Menu button.png", true);
+
+    font.createFromFile(FONT_PATH "BoldPixels.ttf");
+    bgm.load(app->getAudioEngine(), SFX_PATH "BGM.mp3", true);
 }
 
 void GameplayState::handleInput(const KeyInputState& in)
 {
     MousePos mousePos = app->getMousePos();
+    vp = app->getViewportScale();
 
-    UI::processUI(in, mousePos);
+    ui.processUI(in, mousePos, vp);
 
-    if (in.keyPressed[GLFW_KEY_ESCAPE])
-        app->stop();
     if (in.keyPressed[GLFW_KEY_W] || in.keyPressed[GLFW_KEY_UP])
     {
         move = {};
@@ -39,34 +53,20 @@ void GameplayState::handleInput(const KeyInputState& in)
         move.x = 1;
     }
 
-    if (in.keyPressed[GLFW_KEY_P] || menuBtn->clicked())
+    if (pauseBtn->clicked() || in.keyReleased[GLFW_KEY_ESCAPE])
     {
-        app->getStateStack().queueTransit(this, "MainMenu");
-    }
-
-    if (in.keyPressed[GLFW_KEY_U])
-    {
-        sl.save(data);
-        std::cout << "Saved!\n";
-    }
-
-    if (in.keyPressed[GLFW_KEY_L])
-    {
-        data = sl.load();
-        player->pos = data.playerPos;
-        enemy->pos = data.enemyPos;
-        scoreDisplay->getText() = std::to_string(data.score);
-        std::cout << "Loaded!\n";
+        app->getStateStack().queueTransit(nullptr, "PauseMenu");
+        if (!bgm.isFinished()) bgm.stop();
+        app->getStateStack().queueSuspend(this, true, false, true);
     }
 
     if ((in.keyDown[GLFW_KEY_LEFT_CONTROL] && in.keyPressed[GLFW_KEY_Z]) || undoBtn->clicked())
     {
-        if (!data.stepHistory.empty() && !data.enemyStepHistory.empty())
+        if (!data.stepHistory.empty())
         {
             data.playerPos = data.stepHistory.back();
-            data.enemyPos = data.enemyStepHistory.back();
             data.stepHistory.pop_back();
-            data.enemyStepHistory.pop_back();
+            undoing = true;
         }
     }
 
@@ -74,48 +74,86 @@ void GameplayState::handleInput(const KeyInputState& in)
     {
         std::cout << "Button pressed!\n";
 
-        data.playerPos = maze->pos;
-        data.enemyPos = maze->pos + glm::vec2(6, 6) * glm::vec2(64, 64);
+        data.playerPos = data.startPos * charSize;
+        for(int i = 0; i < data.enemyStartPos.size(); ++i)
+            data.enemyPos[i] = data.enemyStartPos[i] * charSize;
 
         player->pos = data.playerPos;
-        enemy->pos = data.enemyPos;
+
+        for (int i = 0; i < enemies.size(); ++i)
+        {
+            enemies[i]->pos = data.enemyPos[i];
+        }
 
         data.score = 0;
         data.time = 0;
         data.stepHistory.clear();
         data.enemyStepHistory.clear();
+
+        data.enemyStepHistory.resize(data.enemyStartPos.size());
     }
 }
 
 void GameplayState::onEnter()
 {
     renderData = RenderData();
-      maze = renderData.addShape<Maze>(Maze({ 0, 0 }, { 8, 8 }, { 64, 64 }));
-    player = renderData.addShape<Rect>(Rect(maze, { 0, 0, 64, 64 }, playerTexture, Colors_White, {6, 4}, { 6, 6, 6, 4 }));
-     enemy = renderData.addShape<Rect>(Rect(maze, { glm::vec2(6, 6) * glm::vec2(64, 64), 64, 64}, Colors_Red));
+    background = renderData.addShape<Rect>(Rect({ 0,0,1200,805 }, gameplayBgTexture, Colors_White));
+    
+    mazeBg = renderData.addShape<Rect>(Rect({ 0,0, 690, 805 }, mazeBgTexture, Colors_White));
+      maze = renderData.addShape<Maze>(Maze(mazeBg, { 29, 140 }, data.mazeSize, charSize));
+    player = renderData.addShape<Rect>(Rect(maze, { data.startPos * charSize, charSize }, playerTexture, Colors_White, {6, 4}, { 6, 6, 6, 4 }));
 
-     timeDisplay = renderData.addShape<TextBox>(TextBox({ 600, 100, 150, 50 }, Colors_Transparent, font,  50));
-     scoreDisplay = renderData.addShape<TextBox>(TextBox(timeDisplay, { 0, 100, 150, 50 }, Colors_Transparent, font, 50));
+    goal = renderData.addShape<Rect>(Rect(maze, {data.goalPos * charSize, charSize}, goalTexture, Colors_White));
 
-     undoBtn = renderData.addShape<Button>(Button(scoreDisplay, {0, 100, 150, 50}, Colors_Gray));
-    resetBtn = renderData.addShape<Button>(Button(undoBtn, {0, 100, 150, 50}, Colors_White));
-     menuBtn = renderData.addShape<Button>(Button(resetBtn, {0, 100, 150, 50}, Colors_Green));
+    enemies.resize(data.enemyStartPos.size());
+    data.enemyStepHistory.resize(data.enemyStartPos.size());
 
-    maze->mazeEncode = maze2;
+    gl2d::Texture& enemyTexture = (data.level == 0 ? enemy1Texture : (data.level == 1 ? enemy2Texture : enemy3Texture));
+
+    for (int i = 0; i < data.enemyStartPos.size(); ++i)
+    {
+        enemies[i] = renderData.addShape<Rect>(Rect(maze, {data.enemyStartPos[i] * charSize, charSize }, enemyTexture, Colors_White, {6, 4}, {6, 6, 6, 2}));
+    }
+
+     statusBg = renderData.addShape<Rect>(Rect({ 700, 60, glm::vec2(432, 549) * 1.1f }, statusBgTexture, Colors_White));
+
+     timeBg = renderData.addShape<Rect>(Rect(statusBg, { 60, 120, 273 * 1.3f, 78 }, statBgTexture, Colors_White));
+     timeDisplay = renderData.addShape<TextBox>(TextBox(ui, timeBg, { 50, 8, 150, 50 }, Colors_Transparent, font, 40));
+
+     scoreBg = renderData.addShape<Rect>(Rect(timeBg, { 0, 90, 273 * 1.3f, 78 }, statBgTexture, Colors_White));
+     scoreDisplay = renderData.addShape<TextBox>(TextBox(ui, scoreBg, { 50, 8, 150, 50 }, Colors_Transparent, font, 40));
+
+     undoBtn = renderData.addShape<Button>(Button(ui, scoreDisplay, { 10, 100, glm::vec2(27, 26) * 4.0f }, undoTexture, Colors_White, { 2, 1 }));
+     resetBtn = renderData.addShape<Button>(Button(ui, undoBtn, { 120, 0, glm::vec2(27, 26) * 4.0f }, resetTexture, Colors_White, { 2, 1 }));
+     pauseBtn = renderData.addShape<Button>(Button(ui, undoBtn, { 60, 120, glm::vec2(27, 26) * 4.0f }, pauseTexture, Colors_White, { 2, 1 }));
+
+    vp = app->getViewportScale();
+
+    maze->mazeEncode = data.mazeEncode;
     maze->texture = mazeTexture;
+
+    data.time = 0;
+
     if (data.changed)
     {
         player->pos = data.playerPos;
-        enemy->pos = data.enemyPos;
-        timeDisplay->getText() = Utils::timeToDate(data.time);
+        for (int i = 0; i < enemies.size(); ++i)
+        {
+            enemies[i]->pos = data.enemyPos[i];
+        }
+        //timeDisplay->getText() = Utils::timeToDate(data.time);
         scoreDisplay->getText() = "Score: " + std::to_string(data.score);
     }
     else
     {
         data.playerPos = player->pos;
-        data.enemyPos = enemy->pos;
+        data.enemyPos.resize(enemies.size());
+        for (int i = 0; i < enemies.size(); ++i)
+        {
+            data.enemyPos[i] = enemies[i]->pos;
+        }
+        data.changed = true;
     }
-    data.changed = true;
 }
 
 void GameplayState::onExit()
@@ -127,10 +165,11 @@ void GameplayState::onExit()
 
 void GameplayState::update(double dt)
 {
-    glm::vec2& playerPos = player->pos;
-    glm::vec2& playerSize = player->size;
-    glm::vec2& enemyPos = enemy->pos;
-    glm::vec2& enemySize = enemy->size;
+    if (bgm.isFinished()) bgm.play();
+
+    auto& playerPos = player->pos;
+    auto enemyNum = enemies.size();
+    auto& mazeEncode = maze->mazeEncode;
 
     data.time += dt;
     timeDisplay->getText() = "Time: " + Utils::timeToDate(data.time);
@@ -138,32 +177,75 @@ void GameplayState::update(double dt)
     scoreDisplay->getText() = "Score: " + std::to_string(data.score);
 
     //Maze mechanism handling
-    if (Utils::inRect(data.playerPos, playerSize, maze->pos, maze->size))
+    if (Utils::inRect(data.playerPos, charSize, {}, maze->size))
     {
-        glm::ivec2 mazePos = (data.playerPos - maze->pos) / maze->tileSize.x * 2.0f + 1.0f;
-        if (move.x == 1)   move.x *= maze2[mazePos.x + maze->encodeSize.x * mazePos.y + 1];
-        if (move.x == -1)  move.x *= maze2[mazePos.x + maze->encodeSize.x * mazePos.y - 1];
-        if (move.y == 1)   move.y *= maze2[mazePos.x + maze->encodeSize.x * (mazePos.y + 1)];
-        if (move.y == -1)  move.y *= maze2[mazePos.x + maze->encodeSize.x * (mazePos.y - 1)];
+        glm::vec2 mazePos = (data.playerPos) / charSize * 2.0f + 1.0f;
+        if (move.x == 1)   move.x *= mazeEncode[mazePos.x + maze->encodeSize.x * mazePos.y + 1];
+        if (move.x == -1)  move.x *= mazeEncode[mazePos.x + maze->encodeSize.x * mazePos.y - 1];
+        if (move.y == 1)   move.y *= mazeEncode[mazePos.x + maze->encodeSize.x * (mazePos.y + 1)];
+        if (move.y == -1)  move.y *= mazeEncode[mazePos.x + maze->encodeSize.x * (mazePos.y - 1)];
+    }
 
-        mazePos = (mazePos - 1) / 2;
+    //Win
+    if (playerPos == data.goalPos * charSize)
+    {
+        bgm.stop();
+        data.wlState = 1;
+        data.maxScore += data.score;
+        app->getStateStack().queueTransit(nullptr, "GameWL");
+        app->getStateStack().queueSuspend(this, true, false, true);
 
-        if (glm::length(data.playerPos - playerPos) < 0.1f)
+        data.playerPos = data.startPos * charSize;
+        for (int i = 0; i < data.enemyStartPos.size(); ++i)
+            data.enemyPos[i] = data.enemyStartPos[i] * charSize;
+
+        player->pos = data.playerPos;
+
+        for (int i = 0; i < enemies.size(); ++i)
         {
-            if (mazePos.x == 4 && mazePos.y == 7) std::cout << "Win\n";
+            enemies[i]->pos = data.enemyPos[i];
         }
+
+        data.score = 0;
+        data.time = 0;
+        data.stepHistory.clear();
+        data.enemyStepHistory.clear();
+
+        data.enemyStepHistory.resize(data.enemyStartPos.size());
+    }
+
+    //Lose
+    else for(int i = 0; i < enemyNum; ++i)
+    if (playerPos == enemies[i]->pos)
+    {
+        bgm.stop();
+        data.wlState = 2;
+        data.maxScore += data.score;
+        app->getStateStack().queueTransit(nullptr, "GameWL");
+        app->getStateStack().queueSuspend(this, true, false, true);
+
+        data.playerPos = data.startPos * charSize;
+        for (int i = 0; i < data.enemyStartPos.size(); ++i)
+            data.enemyPos[i] = data.enemyStartPos[i] * charSize;
+
+        player->pos = data.playerPos;
+
+        for (int i = 0; i < enemies.size(); ++i)
+        {
+            enemies[i]->pos = data.enemyPos[i];
+        }
+
+        data.time = 0;
+        data.stepHistory.clear();
+        data.enemyStepHistory.clear();
+
+        data.enemyStepHistory.resize(data.enemyStartPos.size());
     }
 
     //Movement handling
-    if (move.x != 0 || move.y != 0)
+    if ((move.x != 0 || move.y != 0) && data.playerPos == playerPos && !undoing && data.enemyStep[0] >= data.enemyMaxStep[0])
     {
         data.stepHistory.push_back(data.playerPos);
-        data.enemyStepHistory.push_back(data.enemyPos);
-
-        if (move.y > 0) player->setAnimation(0, 1.5, dt);
-        if (move.y < 0) player->setAnimation(1, 1.5, dt);
-        if (move.x > 0) player->setAnimation(2, 1.5, dt);
-        if (move.x < 0) player->setAnimation(2, 1.5, dt, true);
 
         move *= 64;
         data.playerPos += move;
@@ -171,32 +253,79 @@ void GameplayState::update(double dt)
 
         data.score += 150;
 
-        glm::ivec2 mazePos = (data.playerPos - maze->pos) / maze->tileSize.x;
-        glm::ivec2 enemyMZPos = (data.enemyPos - maze->pos) / maze->tileSize.x;
+        glm::ivec2 mazePos = data.playerPos / charSize;
 
-        data.enemyPath = PathFinding<BFS_Heuristic>::run({ enemyMZPos.x, enemyMZPos.y }, { mazePos.x, mazePos.y }, { 8, 8 }, maze2);
-        data.enemyMaxStep = std::min((unsigned long long)2, data.enemyPath.size() - 1);
-        data.enemyStep = 0;
+        for (int i = 0; i < enemyNum; ++i)
+        {
+            glm::ivec2 enemyMZPos = data.enemyPos[i] / charSize;
+
+            data.enemyPath[i] = (data.difficulty == 0) ?
+                PathFinding<BFS_Heuristic>::run({ enemyMZPos.x, enemyMZPos.y }, { mazePos.x, mazePos.y }, { data.mazeSize.x, data.mazeSize.y }, mazeEncode) :
+                PathFinding<Djikstra>::run({enemyMZPos.x, enemyMZPos.y}, {mazePos.x, mazePos.y}, { data.mazeSize.x, data.mazeSize.y }, mazeEncode);
+            data.enemyMaxStep[i] = (std::min)((unsigned long long)2, data.enemyPath[i].size() - 1);
+            data.enemyStep[i] = 0;
+            data.enemyStepHistory[i].emplace_back();
+        }
     }
-
-    if (enemyPos == data.enemyPos && data.enemyStep < data.enemyMaxStep)
+    
+    for (int i = 0; i < enemyNum; ++i)
     {
-        glm::ivec2 enemyMZPos = (data.enemyPos - maze->pos) / maze->tileSize.x;
-        int step = data.enemyStep + 1;
-        data.enemyPos += (glm::ivec2(data.enemyPath[step].first, data.enemyPath[step].second) - enemyMZPos) * 64;
-        data.enemyStep++;
+        auto& enemyPos          = enemies[i]->pos;
+        auto& enemyTargetPos    = data.enemyPos[i];
+        auto& enemyStepHistory  = data.enemyStepHistory[i];
+        auto& enemyPath         = data.enemyPath[i];
+        auto& enemyStep         = data.enemyStep[i];
+        auto& enemyMaxStep      = data.enemyMaxStep[i];
+
+        //Building step history
+        if (enemyPos == enemyTargetPos && enemyStep < enemyMaxStep && !undoing)
+        {
+            glm::vec2 enemyMZPos = enemyTargetPos / charSize;
+            int step = enemyStep + 1;
+            enemyStepHistory.back().push_back(enemyTargetPos);
+            enemyTargetPos += (glm::vec2(enemyPath[step].first, enemyPath[step].second) - enemyMZPos) * charSize;
+            enemyStep++;
+        }
+
+        //Undoing steps
+        if (enemyPos == enemyTargetPos && undoing && !enemyStepHistory.empty())
+        {
+            if (!enemyStepHistory.back().empty())
+            {
+                enemyTargetPos = enemyStepHistory.back().back();
+                enemyStepHistory.back().pop_back();
+            }
+            else {
+                enemyStepHistory.pop_back();
+                undoing = false;
+            }
+        }
     }
 
+    // Animation handling
+    if (data.playerPos.y - playerPos.y > 0) player->setAnimation(0, 1.5, dt);
+    if (data.playerPos.y - playerPos.y < 0) player->setAnimation(1, 1.5, dt);
+    if (data.playerPos.x - playerPos.x > 0) player->setAnimation(2, 1.5, dt);
+    if (data.playerPos.x - playerPos.x < 0) player->setAnimation(2, 1.5, dt, true);
     if (playerPos == data.playerPos) player->setAnimation(3, 3, dt);
+
+    //Enemies animation
+    for (int i = 0; i < enemyNum; ++i)
+    {
+        if (data.enemyPos[i].y - enemies[i]->pos.y > 0) enemies[i]->setAnimation(0, 1.5, dt);
+        if (data.enemyPos[i].y - enemies[i]->pos.y < 0) enemies[i]->setAnimation(1, 1.5, dt);
+        if (data.enemyPos[i].x - enemies[i]->pos.x > 0) enemies[i]->setAnimation(2, 1.5, dt);
+        if (data.enemyPos[i].x - enemies[i]->pos.x < 0) enemies[i]->setAnimation(2, 1.5, dt, true);
+        if (enemies[i]->pos == data.enemyPos[i]) enemies[i]->setAnimation(3, 2, dt);
+    }
 
     playerPos = Utils::lerp2(playerPos, data.playerPos, 0.1f, 3.0f);
 
-    enemyPos = Utils::lerp2(enemyPos, data.enemyPos, 0.1f, 3.0f);
+    for(int i = 0; i < enemyNum; ++i)
+        enemies[i]->pos = Utils::lerp2(enemies[i]->pos, data.enemyPos[i], 0.1f, 3.0f);
 
     for (auto& a : renderData.shapes)
-    {
         a->runAnimation();
-    }
 
     //Get buffer to send to render thread
     RenderData& base = m_renderBuffer.getWriteBuffer();
@@ -210,10 +339,12 @@ void GameplayState::render()
 
     gl2d::Renderer2D& renderer = app->getRenderer();
 
-    renderer.clearScreen({ 0.1, 0.2, 0.6, 1 });
+    vp = app->getViewportScale();
+
+    renderer.clearScreen({ 0, 0, 0, 1 });
 
     for (auto& a : renderData.shapes)
     {
-        if (a) a->render(&renderer);
+        if (a) a->render(&renderer, vp);
     }
 }

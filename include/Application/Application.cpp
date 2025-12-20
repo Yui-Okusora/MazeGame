@@ -7,7 +7,12 @@ Application::Application(const ApplicationSpecs& specs)
 {
     m_startTimePoint = clock::now();
     m_processor = std::make_unique<Processor>(this);
-    m_io = std::make_unique<IO>(this);
+    //m_io = std::make_unique<IO>(this);
+
+    m_audioEngine.setCategoryVolume(AudioCategory::Master, 1.0f);
+    m_audioEngine.setCategoryVolume(AudioCategory::Music, 0.5f);
+    m_audioEngine.setCategoryVolume(AudioCategory::GameplaySFX, 1.0f);
+    m_audioEngine.setCategoryVolume(AudioCategory::InteractSFX, 1.0f);
 
     if (!glfwInit()) throw std::runtime_error("Failed to initialize GLFW\n");
 
@@ -62,7 +67,7 @@ void Application::mousePosInputCb(GLFWwindow* window, double xpos, double ypos)
 
 void Application::run()
 {
-    m_ioThread = std::thread(*m_io);
+    //m_ioThread = std::thread(*m_io);
     m_procThread = std::thread(*m_processor);
 
     while (m_running)
@@ -81,6 +86,8 @@ void Application::run()
         glViewport(0, 0, width, height);
 
         renderer.updateWindowMetrics(width, height);
+
+        m_viewportScale.store(computeViewportScale(clientRect, DESIGN_RESOLUTION), std::memory_order_release);
 
         m_stateStack.render();
         

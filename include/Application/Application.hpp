@@ -39,6 +39,12 @@ public:
 
     //Get Mouse position
     MousePos getMousePos() { return m_mousePos.load(std::memory_order_relaxed); }
+    
+    //Get viewport scale
+    ViewportScale getViewportScale() { return m_viewportScale.load(std::memory_order_relaxed); }
+
+    //Get Audio Engine
+    AudioEngine& getAudioEngine() { return m_audioEngine; }
 
     //Get keyboard input buffer for consuming
     CircularBuffer<KeyInputEvent>& getKeyInputBuffer() { return m_keyInputBuffer; }
@@ -82,6 +88,7 @@ private:
     std::shared_ptr<Window> m_window;
 
     //gl2d render texture
+    const glm::vec2 DESIGN_RESOLUTION = { 1200.0f, 805.0f };
     gl2d::Renderer2D renderer;
 
     //Worker threads
@@ -91,10 +98,13 @@ private:
     std::unique_ptr<Processor> m_processor;
     std::unique_ptr<IO> m_io;
 
+    AudioEngine m_audioEngine;
+
     CircularBuffer<KeyInputEvent> m_keyInputBuffer;
     CircularBuffer<MouseEvent> m_mouseKeyBuffer;
 
     std::atomic<MousePos> m_mousePos;
+    std::atomic<ViewportScale> m_viewportScale;
 
     DoubleBuffer<RenderData> m_renderBuffer;
 

@@ -16,7 +16,7 @@ public:
         mazeEncode.~vector();
     }
 
-    void render(gl2d::Renderer2D* renderer) override;
+    void render(gl2d::Renderer2D* renderer, const ViewportScale& vp) override;
 
     Shape* cloneToArena(Arena& a) const override { return a.make<Maze>(*this); }
 
