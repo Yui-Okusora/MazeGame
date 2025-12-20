@@ -89,8 +89,12 @@ void GameplayState::handleInput(const KeyInputState& in)
         data.time = 0;
         data.stepHistory.clear();
         data.enemyStepHistory.clear();
+        data.enemyStep.clear();
+        data.enemyMaxStep.clear();
 
         data.enemyStepHistory.resize(data.enemyStartPos.size());
+        data.enemyStep.resize(data.enemyStartPos.size());
+        data.enemyMaxStep.resize(data.enemyStartPos.size());
     }
 }
 
@@ -210,8 +214,12 @@ void GameplayState::update(double dt)
         data.time = 0;
         data.stepHistory.clear();
         data.enemyStepHistory.clear();
+        data.enemyStep.clear();
+        data.enemyMaxStep.clear();
 
         data.enemyStepHistory.resize(data.enemyStartPos.size());
+        data.enemyStep.resize(data.enemyStartPos.size());
+        data.enemyMaxStep.resize(data.enemyStartPos.size());
     }
 
     //Lose
@@ -235,11 +243,16 @@ void GameplayState::update(double dt)
             enemies[i]->pos = data.enemyPos[i];
         }
 
+        data.score = 0;
         data.time = 0;
         data.stepHistory.clear();
         data.enemyStepHistory.clear();
+        data.enemyStep.clear();
+        data.enemyMaxStep.clear();
 
         data.enemyStepHistory.resize(data.enemyStartPos.size());
+        data.enemyStep.resize(data.enemyStartPos.size());
+        data.enemyMaxStep.resize(data.enemyStartPos.size());
     }
 
     //Movement handling
@@ -261,7 +274,7 @@ void GameplayState::update(double dt)
 
             data.enemyPath[i] = (data.difficulty == 0) ?
                 PathFinding<BFS_Heuristic>::run({ enemyMZPos.x, enemyMZPos.y }, { mazePos.x, mazePos.y }, { data.mazeSize.x, data.mazeSize.y }, mazeEncode) :
-                PathFinding<Djikstra>::run({enemyMZPos.x, enemyMZPos.y}, {mazePos.x, mazePos.y}, { data.mazeSize.x, data.mazeSize.y }, mazeEncode);
+                PathFinding<Dijkstra>::run({enemyMZPos.x, enemyMZPos.y}, {mazePos.x, mazePos.y}, { data.mazeSize.x, data.mazeSize.y }, mazeEncode);
             data.enemyMaxStep[i] = (std::min)((unsigned long long)2, data.enemyPath[i].size() - 1);
             data.enemyStep[i] = 0;
             data.enemyStepHistory[i].emplace_back();

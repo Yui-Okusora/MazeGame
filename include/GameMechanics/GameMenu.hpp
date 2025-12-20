@@ -16,22 +16,37 @@ public:
         font.createFromFile(FONT_PATH "BoldPixels.ttf");
         menuBtnTexture.loadFromFile(ASSETS_PATH "Menu button.png", true);
         titleTexture.loadFromFile(ASSETS_PATH "text box.png", true);
+
+        easyTexture.loadFromFile(ASSETS_PATH "easy.png", true);
+        medTexture.loadFromFile(ASSETS_PATH "med.png", true);
+        hardTexture.loadFromFile(ASSETS_PATH "hard.png", true);
     }
 
     void onEnter() override
     {
         renderData = RenderData();
 
-        title = renderData.addShape<TextBox>(TextBox(ui, { 470, 80, 512, 64 }, Colors_White, font, 64, false));
-        title->getText() = "New Game";
+        title1 = renderData.addShape<TextBox>(TextBox(ui, { 470, 80, 512, 64 }, Colors_White, font, 64, false));
+        title2 = renderData.addShape<TextBox>(TextBox(ui, { 430, 80, 512, 64 }, Colors_White, font, 64, false));
+        title1->getText() = "New Game";
+        title2->getText() = "Select Map";
+        title2->allowRender = false;
 
         border = renderData.addShape<Rect>(Rect({280, 300, 273 * 2.5f, 78 * 2.0f}, titleTexture, Colors_White));
         textbox = renderData.addShape<TextBox>(TextBox(ui, border, { 105, 45, 480, 64 }, Colors_Transparent, font, 64, true, 12));
 
-        levelSelect = renderData.addShape<TextBox>(TextBox(ui, {550, 350, 50, 50}, Colors_Gray, font, 50));
-        levelSelect->allowRender = false;
+        //levelSelect = renderData.addShape<TextBox>(TextBox(ui, {550, 350, 50, 50}, Colors_Gray, font, 50));
+        //levelSelect->allowRender = false;
         
         menuBtn = renderData.addShape<Button>(Button(ui, { 100, 700, glm::vec2(27, 26) * 2.0f }, menuBtnTexture, Colors_White, {2, 1}));
+
+        easyBtn = renderData.addShape<Button>(Button(ui, { 135, 200, glm::vec2(366, 450) * 0.5f}, easyTexture, Colors_White, {2, 1}));
+        medBtn = renderData.addShape<Button>(Button(ui, easyBtn, { 380, 0, glm::vec2(366, 450) * 0.5f }, medTexture, Colors_White, {2, 1}));
+        hardBtn = renderData.addShape<Button>(Button(ui, medBtn, { 380, 0, glm::vec2(366, 450) * 0.5f }, hardTexture, Colors_White, {2, 1}));
+        easyBtn->allowRender = false;
+        medBtn->allowRender = false;
+        hardBtn->allowRender = false;
+
 
         vp = app->getViewportScale();
 
@@ -40,8 +55,13 @@ public:
             textbox->getText() = data.name;
             textbox->allowRender = false;
             border->allowRender = false;
-            levelSelect->allowRender = true;
-            title->getText() = "Select Map";
+
+            easyBtn->allowRender = true;
+            medBtn->allowRender = true;
+            hardBtn->allowRender = true;
+            //levelSelect->allowRender = true;
+            title1->allowRender = false;
+            title2->allowRender = true;
         }
     }
 
@@ -58,31 +78,71 @@ public:
 
         ui.processUI(in, mousePos, vp);
 
-        if (in.keyPressed[GLFW_KEY_P])
-        {
-            app->getStateStack().queueTransit(this, "GameplayState");
-        }
-
         if (in.keyReleased[GLFW_KEY_ENTER])
         {
             textbox->unfocus();
             textbox->allowRender = false;
             border->allowRender = false;
-            levelSelect->allowRender = true;
-            title->getText() = "Select Map";
+
+            easyBtn->allowRender = true;
+            medBtn->allowRender = true;
+            hardBtn->allowRender = true;
+
+            title1->allowRender = false;
+            title2->allowRender = true;
         }
 
-        if (levelSelect->allowRender)
+        if (easyBtn->clicked()) //Load map
         {
-            if (in.keyReleased[GLFW_KEY_RIGHT]) data.level++;
-            if (in.keyReleased[GLFW_KEY_LEFT]) data.level--;
+            std::string mapDir = MAPS_PATH"map" + std::to_string(1) + ".txt";
 
-            levelSelect->getText() = std::to_string(data.level);
+            std::fstream file(mapDir, std::ios::in);
+            MazeData mazeData;
+            file >> mazeData;
+
+            data.difficulty = mazeData.difficulty;
+            data.mazeSize = mazeData.mazeSize;
+            data.mazeEncode = mazeData.mazeEncode;
+            data.startPos = mazeData.startPos;
+            data.goalPos = mazeData.goalPos;
+
+            data.enemyStartPos = mazeData.enemyPosList;
+            data.enemyStep.resize(mazeData.enemyNum);
+            data.enemyMaxStep.resize(mazeData.enemyNum);
+            data.enemyPath.resize(mazeData.enemyNum);
+
+            data.changed = false;
+
+            app->getStateStack().queueTransit(this, "GameplayState");
         }
-        if(in.mouseReleased[GLFW_MOUSE_BUTTON_LEFT])
-        if (levelSelect->clicked()) //Load map
+
+        if (medBtn->clicked()) //Load map
         {
-            std::string mapDir = MAPS_PATH"map" + std::to_string(data.level + 1) + ".txt";
+            std::string mapDir = MAPS_PATH"map" + std::to_string(2) + ".txt";
+
+            std::fstream file(mapDir, std::ios::in);
+            MazeData mazeData;
+            file >> mazeData;
+
+            data.difficulty = mazeData.difficulty;
+            data.mazeSize = mazeData.mazeSize;
+            data.mazeEncode = mazeData.mazeEncode;
+            data.startPos = mazeData.startPos;
+            data.goalPos = mazeData.goalPos;
+
+            data.enemyStartPos = mazeData.enemyPosList;
+            data.enemyStep.resize(mazeData.enemyNum);
+            data.enemyMaxStep.resize(mazeData.enemyNum);
+            data.enemyPath.resize(mazeData.enemyNum);
+
+            data.changed = false;
+
+            app->getStateStack().queueTransit(this, "GameplayState");
+        }
+
+        if (hardBtn->clicked()) //Load map
+        {
+            std::string mapDir = MAPS_PATH"map" + std::to_string(3) + ".txt";
 
             std::fstream file(mapDir, std::ios::in);
             MazeData mazeData;
@@ -150,12 +210,19 @@ public:
 
     gl2d::Texture menuBtnTexture;
     gl2d::Texture titleTexture;
+    gl2d::Texture easyTexture;
+    gl2d::Texture medTexture;
+    gl2d::Texture hardTexture;
 
-    TextBox* title = nullptr;
+    TextBox* title1 = nullptr;
+    TextBox* title2 = nullptr;
     TextBox* textbox = nullptr;
     TextBox* levelSelect = nullptr;
 
     Button* menuBtn = nullptr;
+    Button* easyBtn = nullptr;
+    Button* medBtn = nullptr;
+    Button* hardBtn = nullptr;
 
     Rect* border = nullptr;
 

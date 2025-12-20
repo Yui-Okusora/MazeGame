@@ -2,7 +2,7 @@
 
 #include <Core.hpp>
 
-class Djikstra
+class Dijkstra
 {
 public:
     static bool run(std::pair<int, int> current, std::pair<int, int> target,

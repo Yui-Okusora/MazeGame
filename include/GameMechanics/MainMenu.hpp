@@ -32,8 +32,6 @@ public:
 
         background = renderData.addShape<Rect>(Rect({ 0, 0, 1200, 810 }, bgTexture, Colors_White));
 
-        
-
         start = renderData.addShape<Button>(Button(ui, { 100, 370, 192, 72 }, playTexture, Colors_White, { 2, 1 }));
         continues = renderData.addShape<Button>(Button(ui, start, { 200, 0, 192, 72 }, continuesTexture, Colors_White, { 2, 1 }));
         settings = renderData.addShape<Button>(Button(ui, start, { 0, 80, 192, 72 }, settingsTexture, Colors_White, { 2, 1 }));
@@ -62,12 +60,6 @@ public:
         vp = app->getViewportScale();
 
         ui.processUI(in, mousePos, vp);
-
-        if (in.keyPressed[GLFW_KEY_P])
-        {
-            app->getStateStack().queueTransit(this, "GameMenu");
-            data.changed = false;
-        }
 
         if (start->clicked())
         {
