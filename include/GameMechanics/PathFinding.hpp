@@ -2,7 +2,7 @@
 
 #include <Core.hpp>
 
-class DFS
+class Djikstra
 {
 public:
     static bool run(std::pair<int, int> current, std::pair<int, int> target,
@@ -11,37 +11,72 @@ public:
         std::vector<std::vector<bool>>& visited,
         std::vector<std::pair<int, int>>& path)
     {
-        if (current == target) {
-            path.push_back(current);
-            return true;
-        }
+        int width = (size.first - 1) / 2;
+        int height = (size.second - 1) / 2;
 
-        visited[current.second][current.first] = true;
-        path.push_back(current);
+        const int INF = (std::numeric_limits<int>::max)();
+
+        std::vector<std::vector<int>> dist(height, std::vector<int>(width, INF));
+        std::vector<std::vector<std::pair<int, int>>> parent(
+            height, std::vector<std::pair<int, int>>(width, { -1, -1 })
+        );
+
+        using Node = std::pair<int, std::pair<int, int>>;
+        std::priority_queue<Node, std::vector<Node>, std::greater<Node>> pq;
+
+        dist[current.second][current.first] = 0;
+        pq.push({ 0, current });
 
         int dr[] = { -1, 1, 0, 0 };
         int dc[] = { 0, 0, -1, 1 };
 
-        for (int i = 0; i < 4; ++i) {
-            int encX = 2 * current.first + 1;
-            int encY = 2 * current.second + 1;
+        while (!pq.empty()) {
+            auto [d, pos] = pq.top();
+            pq.pop();
 
-            int isValid = matrix[encX + dc[i] + size.first * (encY + dr[i])];
+            int x = pos.first;
+            int y = pos.second;
 
-            int newY = current.second + dr[i];
-            int newX = current.first + dc[i];
-            if(isValid)
-            if (newY >= 0 && newX >= 0 && newY < (size.second - 1) / 2 && newX < (size.first - 1) / 2) {
-                if(!visited[newY][newX])
-                if (run({ newX, newY }, target, size, matrix, visited, path)) {
-                    return true;
+            if (visited[y][x]) continue;
+            visited[y][x] = true;
+
+            if (pos == target) break;
+
+            for (int i = 0; i < 4; ++i) {
+                int encX = 2 * x + 1;
+                int encY = 2 * y + 1;
+
+                int isValid = matrix[
+                    encX + dc[i] + size.first * (encY + dr[i])
+                ];
+
+                int nx = x + dc[i];
+                int ny = y + dr[i];
+
+                if (!isValid) continue;
+                if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
+                if (visited[ny][nx]) continue;
+
+                int nd = d + 1;
+                if (nd < dist[ny][nx]) {
+                    dist[ny][nx] = nd;
+                    parent[ny][nx] = { x, y };
+                    pq.push({ nd, { nx, ny } });
                 }
             }
         }
 
-        path.pop_back();
-        visited[current.second][current.first] = false;
-        return false;
+        if (dist[target.second][target.first] == INF)
+            return false;
+
+        // Reconstruct path
+        path.clear();
+        for (std::pair<int, int> p = target; p.first != -1; p = parent[p.second][p.first]) {
+            path.push_back(p);
+        }
+        std::reverse(path.begin(), path.end());
+
+        return true;
     }
 };
 

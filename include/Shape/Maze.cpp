@@ -37,9 +37,14 @@ Maze::Maze(Shape* _parent, glm::vec2 _pos, glm::vec2 _mazeSize, glm::vec2 _tileS
     atlas = { 15, 1 };
 }
 
-void Maze::render(gl2d::Renderer2D* renderer)
+void Maze::render(gl2d::Renderer2D* renderer, const ViewportScale& vp)
 {
+    if (!allowRender) return;
     if (mazeEncode.empty()) return;
+
+    glm::vec2 p = getViewportPos(vp);
+    glm::vec2 s = tileSize * vp.scale;
+
     for (int i = 0; i < mazeSize.y; ++i)
     {
         for (int j = 0; j < mazeSize.x; ++j)
@@ -54,7 +59,7 @@ void Maze::render(gl2d::Renderer2D* renderer)
 
             auto vec = atlas.get(tileType - 1, 0);
 
-            renderer->renderRectangle({ getAbsPos() + (tileSize * glm::vec2(j, i)), tileSize}, texture, Colors_White, {}, 0, vec);
+            renderer->renderRectangle({ p + (s * glm::vec2(j, i)), s}, texture, Colors_White, {}, 0, vec);
         }
     }
 }

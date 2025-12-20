@@ -52,10 +52,14 @@ Rect::Rect(Shape* _parent, gl2d::Rect rect, gl2d::Texture _texture, gl2d::Color4
     noTexture = false;
 }
 
-void Rect::render(gl2d::Renderer2D* renderer)
+void Rect::render(gl2d::Renderer2D* renderer, const ViewportScale& _vp)
 {
+    if (!allowRender) return;
+    glm::vec2 p = getViewportPos(_vp);
+    glm::vec2 s = getViewportSize(_vp);
+
     if (!noTexture)
-        renderer->renderRectangle({ getAbsPos(), size}, texture, color, {}, 0, atlas.get(atlasPos.x, atlasPos.y, flip));
+        renderer->renderRectangle({ p, s}, texture, color, {}, 0, atlas.get(atlasPos.x, atlasPos.y, flip));
     else
-        renderer->renderRectangle({ getAbsPos(), size }, color, {}, 0);
+        renderer->renderRectangle({ p, s }, color, {}, 0);
 }
