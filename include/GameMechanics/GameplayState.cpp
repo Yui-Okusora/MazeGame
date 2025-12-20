@@ -19,7 +19,7 @@ GameplayState::GameplayState(IApplication* _app)
     mazeBgTexture.loadFromFile(ASSETS_PATH "wall.png", true);
     undoTexture.loadFromFile(ASSETS_PATH "Undo button.png", true);
     resetTexture.loadFromFile(ASSETS_PATH "Reset button.png", true);
-    pauseTexture.loadFromFile(ASSETS_PATH "Menu button.png", true);
+    pauseTexture.loadFromFile(ASSETS_PATH "Pause button.png", true);
 
     font.createFromFile(FONT_PATH "BoldPixels.ttf");
     bgm.load(app->getAudioEngine(), SFX_PATH "BGM.mp3", true);
@@ -162,6 +162,7 @@ void GameplayState::onEnter()
 
 void GameplayState::onExit()
 {
+    if (!bgm.isFinished()) bgm.stop();
     renderData.reset();
     m_renderBuffer.getReadBuffer() = {};
     data.changed = true;
@@ -210,8 +211,6 @@ void GameplayState::update(double dt)
             enemies[i]->pos = data.enemyPos[i];
         }
 
-        data.score = 0;
-        data.time = 0;
         data.stepHistory.clear();
         data.enemyStepHistory.clear();
         data.enemyStep.clear();
@@ -243,8 +242,6 @@ void GameplayState::update(double dt)
             enemies[i]->pos = data.enemyPos[i];
         }
 
-        data.score = 0;
-        data.time = 0;
         data.stepHistory.clear();
         data.enemyStepHistory.clear();
         data.enemyStep.clear();

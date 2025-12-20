@@ -1,7 +1,6 @@
 #pragma once
 #include <Application/IApplication.hpp>
 #include <Processor/Processor.hpp>
-#include <IO/IO.hpp>
 #include <State/State.hpp>
 
 
@@ -93,10 +92,8 @@ private:
 
     //Worker threads
     std::thread m_procThread;
-    std::thread m_ioThread;
 
     std::unique_ptr<Processor> m_processor;
-    std::unique_ptr<IO> m_io;
 
     AudioEngine m_audioEngine;
 

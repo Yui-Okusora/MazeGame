@@ -13,14 +13,18 @@ public:
         app = _app;
         label = "SettingsMenu";
         font.createFromFile(FONT_PATH "BoldPixels.ttf");
-        playBtnTexture.loadFromFile(ASSETS_PATH "Start button.png", true);
+        menuBtnTexture.loadFromFile(ASSETS_PATH "Menu button.png", true);
+        sliderBodyTexture.loadFromFile(ASSETS_PATH "volume slider.png", true);
+        knobTexture.loadFromFile(ASSETS_PATH "button volume.png", true);
     }
 
     void onEnter()
     {
         renderData = RenderData();
         background = renderData.addShape<Rect>(Rect({0,0,1200,805}, {0, 0, 0, 0.7}));
-        playBtn = renderData.addShape<Button>(Button(ui, {300, 300, glm::vec2(27, 26) * 4.0f}, playBtnTexture, Colors_White, {2, 1}));
+        menuBtn = renderData.addShape<Button>(Button(ui, { 100, 700, glm::vec2(27, 26) * 2.0f }, menuBtnTexture, Colors_White, { 2, 1 }));
+
+        masterVolume = renderData.addShape<Slider>(Slider(ui, {100, 100, glm::vec2(500, 100) * 0.7f}, sliderBodyTexture, knobTexture));
     }
 
     void onExit()
@@ -37,7 +41,7 @@ public:
 
         ui.processUI(in, mousePos, vp);
 
-        if (playBtn->clicked())
+        if (menuBtn->clicked())
         {
             if (app->getStateStack().findActiveState("MainMenu"))
             {
@@ -47,7 +51,6 @@ public:
             else if (app->getStateStack().findInactiveState("PauseMenu"))
             {
                 app->getStateStack().queueTransit(this, "PauseMenu");
-                //app->getStateStack().queueSuspend("GameplayState", false, false, false);
             }
         }
     }
@@ -56,8 +59,12 @@ public:
     {
         RenderData& base = m_renderBuffer.getWriteBuffer();
         base = renderData;
+
+
+
         m_renderBuffer.swap();
     }
+
     void render()
     {
         RenderData renderData(m_renderBuffer.getReadBuffer());
@@ -80,14 +87,18 @@ private:
 
     gl2d::Font font;
 
-    gl2d::Texture playBtnTexture;
+    gl2d::Texture menuBtnTexture;
+    gl2d::Texture sliderBodyTexture;
+    gl2d::Texture knobTexture;
 
     Rect* background = nullptr;
 
-    Button* playBtn = nullptr;
-    Button* saveBtn = nullptr;
-    Button* loadBtn = nullptr;
     Button* menuBtn = nullptr;
+
+    Slider* masterVolume = nullptr;
+    Slider* musicVolume = nullptr;
+    Slider* gameVolume = nullptr;
+    Slider* interactVolume = nullptr;
 
     DoubleBuffer<RenderData> m_renderBuffer;
 };

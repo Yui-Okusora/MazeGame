@@ -10,6 +10,7 @@ class UI
 public:
     void processUI(const KeyInputState& _states, const MousePos& _mousePos, const ViewportScale& _vp)
     {
+        prevPos = mousePos;
         states = _states;
         mousePos.x = (_mousePos.x - _vp.offset.x) / _vp.scale;
         mousePos.y = (_mousePos.y - _vp.offset.y) / _vp.scale;
@@ -17,6 +18,7 @@ public:
 
     KeyInputState states;
     MousePos mousePos = {};
+    MousePos prevPos = {};
 };
 
 class Button : public Shape
@@ -88,6 +90,16 @@ public:
         else atlasPos.x = 0;
         return isClicked;
     }
+
+    bool holded()
+    {
+        if (!allowRender) return false;
+        bool isClicked = hovered() && ui.states.mouseDown[GLFW_MOUSE_BUTTON_LEFT];
+        if (hovered() && ui.states.mouseDown[GLFW_MOUSE_BUTTON_LEFT]) atlasPos.x = 1;
+        else atlasPos.x = 0;
+        return isClicked;
+    }
+
     bool rightClicked()
     {
         if (!allowRender) return false;
@@ -213,8 +225,11 @@ public:
         glm::vec2 textPosVP =
             p + glm::vec2(5.0f, s.y - fontSize * vp.scale / 6.0f);
 
-        renderer->renderText(textPosVP, text.c_str(), font, Colors_Black, fontSize * vp.scale, 3.5f, 2, false, {});
+        renderer->renderText(textPosVP, text.c_str(), font, textColor, fontSize * vp.scale, 3.5f, 2, false, {});
     }
+
+    gl2d::Color4f textColor = Colors_Black;
+
 private:
     UI& ui;
     std::string text = "";
@@ -402,11 +417,30 @@ private:
 class Slider : public Shape
 {
 public:
-    Slider(UI& _ui, gl2d::Rect rect, gl2d::Texture _texture, gl2d::Texture _knobTexture, gl2d::Font _font, float _fontSize)
-        : ui(_ui),
-        knob(_ui, {}, _knobTexture)
+    Slider(const Slider& src)
+        : ui(src.ui),
+        knob(src.ui, {src.knob.pos, src.knob.size}, src.knob.texture, Colors_White, {2, 1})
     {
+        pos = src.pos;
+        size = src.size;
+        color = Colors_White;
+        texture = src.texture;
+        noTexture = false;
+        knob.parent = this;
+        prevPos = {};
+    }
 
+    Slider(UI& _ui, gl2d::Rect rect, gl2d::Texture _texture, gl2d::Texture _knobTexture)
+        : ui(_ui),
+        knob(_ui, {0, 0, glm::vec2(70, 27) * 0.75f}, _knobTexture, Colors_White, {2, 1})
+    {
+        pos = { rect.x, rect.y };
+        size = { rect.z, rect.w };
+        color = Colors_White;
+        texture = _texture;
+        noTexture = false;
+        knob.parent = this;
+        prevPos = {};
     }
 
     Shape* cloneToArena(Arena& a) const { return a.make<Slider>(*this); }
@@ -422,10 +456,18 @@ public:
         return isClicked;
     }
 
+    bool holded()
+    {
+        if (!allowRender) return false;
+        return knob.holded();
+    }
+
+    float getValue() { return value; }
+
     void render(gl2d::Renderer2D* renderer, const ViewportScale& vp)
     {
         if (!allowRender) return;
-        gl2d::Color4f finalColor = color * (hovered() ? 0.85f : 1.0f);
+        gl2d::Color4f finalColor = color;
         finalColor.a = color.a;
 
         glm::vec2 p = getViewportPos(vp);
@@ -436,11 +478,19 @@ public:
         else
             renderer->renderRectangle({ p, s }, finalColor, {}, 0);
 
+        if (holded()) knob.pos.x += ui.mousePos.x - ui.prevPos.x;
+        knob.pos.x = std::clamp(knob.pos.x, 0.0f, size.x);
+
+        value = knob.pos.x / knob.size.x;
+
         knob.render(renderer, vp);
+
+        prevPos = ui.mousePos;
     }
 
 private:
     UI& ui;
+    MousePos prevPos;
     Button knob;
     float value;
 };

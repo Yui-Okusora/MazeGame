@@ -38,6 +38,7 @@ public:
 
     void onExit()
     {
+        if (!pauseSFX.isFinished()) pauseSFX.stop();
         renderData.reset();
         m_renderBuffer.getReadBuffer() = {};
     }
@@ -50,7 +51,7 @@ public:
 
         ui.processUI(in, mousePos, vp);
 
-        if (playBtn->clicked())
+        if (playBtn->clicked() || in.keyReleased[GLFW_KEY_ESCAPE])
         {
             app->getStateStack().queueTransit(this, "");
             app->getStateStack().queueSuspend("GameplayState", false, false, false);

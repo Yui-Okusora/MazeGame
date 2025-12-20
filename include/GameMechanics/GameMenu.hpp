@@ -15,6 +15,7 @@ public:
         label = "GameMenu";
         font.createFromFile(FONT_PATH "BoldPixels.ttf");
         menuBtnTexture.loadFromFile(ASSETS_PATH "Menu button.png", true);
+        gameplayBgTexture.loadFromFile(ASSETS_PATH "Backgroundinput name.png", true);
         titleTexture.loadFromFile(ASSETS_PATH "text box.png", true);
 
         easyTexture.loadFromFile(ASSETS_PATH "easy.png", true);
@@ -26,17 +27,18 @@ public:
     {
         renderData = RenderData();
 
-        title1 = renderData.addShape<TextBox>(TextBox(ui, { 470, 80, 512, 64 }, Colors_White, font, 64, false));
-        title2 = renderData.addShape<TextBox>(TextBox(ui, { 430, 80, 512, 64 }, Colors_White, font, 64, false));
+        background = renderData.addShape<Rect>(Rect({ 0,0,1200,805 }, gameplayBgTexture, Colors_White));
+
+        title1 = renderData.addShape<TextBox>(TextBox(ui, { 470, 80, 512, 64 }, Colors_Transparent, font, 64, false));
+        title2 = renderData.addShape<TextBox>(TextBox(ui, { 430, 80, 512, 64 }, Colors_Transparent, font, 64, false));
+        title1->textColor = Colors_White;
+        title2->textColor = Colors_White;
         title1->getText() = "New Game";
         title2->getText() = "Select Map";
         title2->allowRender = false;
-
+        
         border = renderData.addShape<Rect>(Rect({280, 300, 273 * 2.5f, 78 * 2.0f}, titleTexture, Colors_White));
         textbox = renderData.addShape<TextBox>(TextBox(ui, border, { 105, 45, 480, 64 }, Colors_Transparent, font, 64, true, 12));
-
-        //levelSelect = renderData.addShape<TextBox>(TextBox(ui, {550, 350, 50, 50}, Colors_Gray, font, 50));
-        //levelSelect->allowRender = false;
         
         menuBtn = renderData.addShape<Button>(Button(ui, { 100, 700, glm::vec2(27, 26) * 2.0f }, menuBtnTexture, Colors_White, {2, 1}));
 
@@ -59,7 +61,7 @@ public:
             easyBtn->allowRender = true;
             medBtn->allowRender = true;
             hardBtn->allowRender = true;
-            //levelSelect->allowRender = true;
+            
             title1->allowRender = false;
             title2->allowRender = true;
         }
@@ -112,6 +114,8 @@ public:
             data.enemyPath.resize(mazeData.enemyNum);
 
             data.changed = false;
+            data.level = 0;
+            data.score = 0;
 
             app->getStateStack().queueTransit(this, "GameplayState");
         }
@@ -136,6 +140,8 @@ public:
             data.enemyPath.resize(mazeData.enemyNum);
 
             data.changed = false;
+            data.level = 1;
+            data.score = 0;
 
             app->getStateStack().queueTransit(this, "GameplayState");
         }
@@ -160,6 +166,8 @@ public:
             data.enemyPath.resize(mazeData.enemyNum);
 
             data.changed = false;
+            data.level = 2;
+            data.score = 0;
 
             app->getStateStack().queueTransit(this, "GameplayState");
         }
@@ -167,6 +175,7 @@ public:
         if (menuBtn->clicked())
         {
             app->getStateStack().queueTransit("GameMenu", "MainMenu");
+            app->getStateStack().queueSuspend("MainMenu");
             data.changed = false;
         }
 
@@ -208,6 +217,7 @@ public:
 
     GameplayData& data;
 
+    gl2d::Texture gameplayBgTexture;
     gl2d::Texture menuBtnTexture;
     gl2d::Texture titleTexture;
     gl2d::Texture easyTexture;
@@ -224,6 +234,7 @@ public:
     Button* medBtn = nullptr;
     Button* hardBtn = nullptr;
 
+    Rect* background = nullptr;
     Rect* border = nullptr;
 
     gl2d::Font font;

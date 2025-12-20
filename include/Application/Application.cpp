@@ -7,7 +7,6 @@ Application::Application(const ApplicationSpecs& specs)
 {
     m_startTimePoint = clock::now();
     m_processor = std::make_unique<Processor>(this);
-    //m_io = std::make_unique<IO>(this);
 
     m_audioEngine.setCategoryVolume(AudioCategory::Master, 1.0f);
     m_audioEngine.setCategoryVolume(AudioCategory::Music, 0.5f);
@@ -37,7 +36,6 @@ Application::Application(const ApplicationSpecs& specs)
 Application::~Application()
 {
     if (m_procThread.joinable()) m_procThread.join();
-    if (m_ioThread.joinable()) m_ioThread.join();
     gl2d::cleanup();
     m_window->destroy();
     glfwTerminate();

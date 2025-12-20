@@ -39,6 +39,7 @@
 #include <chrono>
 #include <string>
 #include <cstdint>
+#include <cstdlib>
 #include <unordered_map>
 #include <concepts>
 #include <type_traits>

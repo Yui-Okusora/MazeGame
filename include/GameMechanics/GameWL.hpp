@@ -22,10 +22,14 @@ public:
 
     void onEnter()
     {
+        srand(time(0));
         single = true;
         renderData = RenderData();
         background = renderData.addShape<Rect>(Rect({ 0,0,1200,805 }, { 0, 0, 0, 0.7 }));
-        wlPoster = renderData.addShape<Rect>(Rect({ 300, 200, glm::vec2(1200, 805) * 0.5f}, (data.wlState == 1 && data.wlState != 0) ? winTexture : loseTexture, Colors_White));
+        wlPoster = renderData.addShape<Rect>(Rect({ -210, -120, glm::vec2(1200, 805) * 1.2f }, (data.wlState == 1 && data.wlState != 0) ? winTexture : loseTexture, Colors_White));
+
+        wlPoster->atlas = (data.wlState == 1 && data.wlState != 0) ? gl2d::TextureAtlas(1, 1) : gl2d::TextureAtlas(2, 1);
+        if(wlPoster->atlas.xCount > 1) wlPoster->atlasPos.x = rand() % 10 >= 5 ? 1 : 0;
     }
 
     void onExit()
@@ -59,9 +63,6 @@ public:
                 data.maxScore -= data.score;
             }
         }
-
-        //ui.processUI(in, mousePos, vp);
-
     }
 
     void update(double dt) override
@@ -86,7 +87,7 @@ public:
 
         gl2d::Renderer2D& renderer = app->getRenderer();
 
-        renderer.clearScreen({ 0.1, 0.2, 0.6, 1 });
+        renderer.clearScreen({ 0, 0, 0, 1 });
 
         for (auto& a : renderData.shapes)
         {

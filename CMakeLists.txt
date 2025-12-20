@@ -25,7 +25,7 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/stb_image)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/stb_truetype)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/miniaudio-master)
 
-add_executable (MazeGame "src/MazeGame.cpp" "include/Application/Application.cpp" "include/Window/Window.cpp" "include/Processor/Processor.cpp" "include/IO/IO.cpp" "include/AssetsLoader/AssetsLoader.cpp" "include/State/State.cpp" "include/Shape/Rect.cpp" "include/Shape/Maze.cpp" "include/GameMechanics/GameplayState.cpp" "include/CRC32_64/CRC32_64.cpp" "include/AudioEngine/AudioEngine.cpp" "include/AudioEngine/Sound.cpp" "include/SaveFile/SaveManager.cpp")
+add_executable (MazeGame "src/MazeGame.cpp" "include/Application/Application.cpp" "include/Window/Window.cpp" "include/Processor/Processor.cpp" "include/State/State.cpp" "include/Shape/Rect.cpp" "include/Shape/Maze.cpp" "include/GameMechanics/GameplayState.cpp" "include/CRC32_64/CRC32_64.cpp" "include/AudioEngine/AudioEngine.cpp" "include/AudioEngine/Sound.cpp" "include/SaveFile/SaveManager.cpp")
 
 target_compile_features(MazeGame PRIVATE cxx_std_23)
 target_include_directories(MazeGame 
