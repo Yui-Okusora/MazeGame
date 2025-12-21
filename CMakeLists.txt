@@ -6,12 +6,6 @@ if (POLICY CMP0141)
   set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
 endif()
 
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-	set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDebug")
-else()
-	set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
-endif()
-
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -27,11 +21,20 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/miniaudio-master)
 
 add_executable (MazeGame "src/MazeGame.cpp" "include/Application/Application.cpp" "include/Window/Window.cpp" "include/Processor/Processor.cpp" "include/State/State.cpp" "include/Shape/Rect.cpp" "include/Shape/Maze.cpp" "include/GameMechanics/GameplayState.cpp" "include/CRC32_64/CRC32_64.cpp" "include/AudioEngine/AudioEngine.cpp" "include/AudioEngine/Sound.cpp" "include/SaveFile/SaveManager.cpp")
 
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+	set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDebug")
+else()
+	set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
+	target_compile_options(MazeGame PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/O2>)
+endif()
+
 target_compile_features(MazeGame PRIVATE cxx_std_23)
 target_include_directories(MazeGame 
     PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include/
 )
+
+target_compile_options(MazeGame PRIVATE -O3)
 
 target_compile_definitions(MazeGame PUBLIC RESOURCES_PATH="${CMAKE_SOURCE_DIR}/resources/")
 

@@ -492,5 +492,5 @@ private:
     UI& ui;
     MousePos prevPos;
     Button knob;
-    float value;
+    float value = 0;
 };

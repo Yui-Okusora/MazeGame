@@ -44,8 +44,12 @@ public:
         header.crc = crc.getCRC64();
 
         // write file
-        std::ofstream file;
-        file.open(path, std::ios::binary | std::ios::trunc);
+        std::filesystem::path _path = path;
+
+        // create directory if not exists
+        std::filesystem::create_directories(_path.parent_path());
+
+        std::ofstream file(path, std::ios::binary | std::ios::trunc);
         if (!file)
             throw std::runtime_error("Failed to open save file");
 

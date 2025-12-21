@@ -53,7 +53,7 @@ public:
                 GameplayData& saveData = file.value();
                 savecells[j + i * 2]->getTimestampText() = Utils::formatTS(saveData.timestamp);
                 savecells[j + i * 2]->getNameText() = saveData.name;
-                savecells[j + i * 2]->getStatsText() = "Score " + std::to_string(saveData.score) + "\nLast Map " + std::to_string(saveData.level);
+                savecells[j + i * 2]->getStatsText() = "Score " + std::to_string(saveData.maxScore) + "\nLast Map " + std::to_string(saveData.level);
             }
         }
     }
@@ -99,7 +99,7 @@ public:
                 saveMan.save(saveDir, data);
                 savecell->getTimestampText() = Utils::formatTS(data.timestamp);
                 savecell->getNameText() = data.name;
-                savecell->getStatsText() = "Score " + std::to_string(data.score) + "\nLast Map " + std::to_string(data.level);
+                savecell->getStatsText() = "Score " + std::to_string(data.maxScore) + "\nLast Map " + std::to_string(data.level);
             }
             else
             {
