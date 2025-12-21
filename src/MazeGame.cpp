@@ -4,17 +4,21 @@
 #include <GameMechanics/GameplayState.hpp>
 #include <GameMechanics/GameMenu.hpp>
 #include <GameMechanics/MainMenu.hpp>
+#include <GameMechanics/SettingsMenu.hpp>
+#include <GameMechanics/PauseMenu.hpp>
+#include <GameMechanics/GameWL.hpp>
+#include <GameMechanics/SaveLoad.hpp>
 
 int main() {
     GameplayData data;
 
     ApplicationSpecs specs = {
-        .appTitle = "Test",
+        .appTitle = "Deadline",
         .windowsSpecs = {
-            .width = 1000,
-            .height = 600,
+            .width = 1200,
+            .height = 805,
             .resizable = true,
-            .fullscreen = true,
+            .fullscreen = false,
             .vSync = true,
             .fps = 60
         }
@@ -24,12 +28,16 @@ int main() {
 
     Application app(specs);
 
-    //app.getStateStack().resizeStack(2);
+    app.getStateStack().resizeStack(2);
 
     app.pushState<MainMenu>();
 
     app.pushInactive<PauseMenu>();
+    app.pushInactive<GameMenu>();
     app.pushInactive<GameplayState>();
+    app.pushInactive<SettingsMenu>();
+    app.pushInactive<GameWL>();
+    app.pushInactive<SaveLoad>();
 
     app.run();
 

@@ -78,6 +78,7 @@ void Processor::operator()()
             accumulator -= timestep;
         }
 
+        app->getStateStack().processSuspend();
         app->getStateStack().processTransit();
     }
 }

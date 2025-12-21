@@ -1,9 +1,8 @@
 #pragma once
 #include <Core.hpp>
-#include <RenderData/RenderData.hpp>
 #include <InputEvent/InputEvent.hpp>
+#include <RenderData/RenderData.hpp>
 #include <Window/Window.hpp>
-#include <AssetsLoader/AssetsLoader.hpp>
 #include <State/State.hpp>
 #include <Utils/Utils.hpp>
 
@@ -31,6 +30,12 @@ public:
 
     //Get Mouse position
     virtual MousePos getMousePos() = 0;
+
+    //Get viewport scale
+    virtual ViewportScale getViewportScale() = 0;
+
+    //Get Audio Engine
+    virtual AudioEngine& getAudioEngine() = 0;
     
     //Get keyboard input buffer for consuming
     virtual CircularBuffer<KeyInputEvent>& getKeyInputBuffer() = 0;

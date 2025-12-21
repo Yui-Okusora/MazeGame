@@ -14,38 +14,42 @@ public:
     {
         app = _app;
         label = "MainMenu";
-        font.createFromFile(FONT_PATH "calibril.ttf");
-        bgTexture.loadFromFile("resources\\start menu game.png");
-        playTexture.loadFromFile("resources\\Play button.png");
-        continuesTexture.loadFromFile("resources\\Continue button.png");
-        settingsTexture.loadFromFile("resources\\Option button.png");
-        quitTexture.loadFromFile("resources\\Exit button.png");
+
+        font.createFromFile(FONT_PATH "BoldPixels.ttf");
+
+        bgTexture.loadFromFile(ASSETS_PATH "start menu game.png", true);
+        playTexture.loadFromFile(ASSETS_PATH "Play button.png", true);
+        continuesTexture.loadFromFile(ASSETS_PATH "Continue button.png", true);
+        settingsTexture.loadFromFile(ASSETS_PATH "Option button.png", true);
+        quitTexture.loadFromFile(ASSETS_PATH "Exit button.png", true);
+
+        entrySFX.load(app->getAudioEngine(), SFX_PATH "entry.mp3");
     }
 
     void onEnter() override
     {
         renderData = RenderData();
 
-        background = renderData.addShape<Rect>(Rect({ 0,0,app->getFramebufferSize().x,app->getFramebufferSize().x }, bgTexture, Colors_White));
+        background = renderData.addShape<Rect>(Rect({ 0, 0, 1200, 810 }, bgTexture, Colors_White));
 
+        start = renderData.addShape<Button>(Button(ui, { 100, 370, 192, 72 }, playTexture, Colors_White, { 2, 1 }));
+        continues = renderData.addShape<Button>(Button(ui, start, { 200, 0, 192, 72 }, continuesTexture, Colors_White, { 2, 1 }));
+        settings = renderData.addShape<Button>(Button(ui, start, { 0, 80, 192, 72 }, settingsTexture, Colors_White, { 2, 1 }));
+        quit = renderData.addShape<Button>(Button(ui, start, { 200, 80, 192, 72 }, quitTexture, Colors_White, { 2, 1 }));
 
-        start = renderData.addShape<Button>(Button({ 100, 370, 192, 72 }, playTexture, Colors_White, { 2, 1 }));
-        continues = renderData.addShape<Button>(Button(start, { 200, 0, 192, 72 }, continuesTexture, Colors_White, { 2, 1 }));
-        settings = renderData.addShape<Button>(Button(start, { 0, 80, 192, 72 }, settingsTexture, Colors_White, { 2, 1 }));
-        quit = renderData.addShape<Button>(Button(start, { 200, 80, 192, 72 }, quitTexture, Colors_White, { 2, 1 }));
+        vp = app->getViewportScale();
+
+        if (entrySFX.isFinished())
+        {
+            entrySFX.play();
+        }
         
-        if (data.changed)
-        {
-            
-        }
-        else
-        {
-
-        }
+        if (data.changed) data.changed = false;
     }
 
     void onExit() override
     {
+        if (!entrySFX.isFinished()) entrySFX.stop();
         renderData.reset();
         m_renderBuffer.getReadBuffer() = {};
     }
@@ -53,14 +57,30 @@ public:
     void handleInput(const KeyInputState& in) override
     {
         MousePos mousePos = app->getMousePos();
+        vp = app->getViewportScale();
 
-        UI::processUI(in, mousePos);
+        ui.processUI(in, mousePos, vp);
 
-        if (in.keyPressed[GLFW_KEY_P])
+        if (start->clicked())
         {
-            app->getStateStack().queueTransit(this, "PauseMenu");
+            app->getStateStack().queueTransit(this, "GameMenu");
+            data.changed = false;
         }
-        if (start->clicked()) app->getStateStack().queueTransit(this, "PauseMenu");
+
+        if (continues->clicked())
+        {
+            app->getStateStack().queueTransit(nullptr, "SaveLoad");
+            app->getStateStack().queueSuspend(this, true, false, true);
+            data.saveloadMode = 0;
+            data.changed = false;
+        }
+
+        if (settings->clicked())
+        {
+            app->getStateStack().queueTransit(nullptr, "SettingsMenu");
+            app->getStateStack().queueSuspend(this, true, false, true);
+        }
+
         if (quit->clicked()) app->stop();
     }
 
@@ -77,17 +97,22 @@ public:
 
         gl2d::Renderer2D& renderer = app->getRenderer();
 
-        renderer.clearScreen({ 0.1, 0.2, 0.6, 1 });
+        renderer.clearScreen({ 0, 0, 0, 1 });
 
         for (auto& a : renderData.shapes)
         {
-            if(a) a->render(&renderer);
+            if(a) a->render(&renderer, vp);
         }
     }
 
     RenderData renderData;
+    ViewportScale vp = {};
+
+    UI ui;
 
     GameplayData& data;
+
+    Sound entrySFX{AudioCategory::GameplaySFX};
 
     Rect* background = nullptr;
 
@@ -101,7 +126,6 @@ public:
     gl2d::Texture continuesTexture;
     gl2d::Texture settingsTexture;
     gl2d::Texture quitTexture;
-
 
     gl2d::Font font;
 

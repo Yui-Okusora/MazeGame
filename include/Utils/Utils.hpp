@@ -35,4 +35,27 @@ public:
 
         return time;
     }
+
+    static std::string formatTS(uint64_t timestampMs)
+    {
+        using namespace std::chrono;
+
+        system_clock::time_point tp{ milliseconds(timestampMs) };
+
+        std::time_t tt = system_clock::to_time_t(tp);
+
+        std::tm tm{};
+
+#ifdef _WIN32
+        localtime_s(&tm, &tt);   // Windows (thread-safe)
+#else
+        localtime_r(&tt, &tm);   // POSIX (thread-safe)
+#endif
+
+        // Format
+        std::ostringstream oss;
+        oss << std::put_time(&tm, "%Y-%m-%d %H:%M:%S");
+
+        return oss.str();
+    }
 };

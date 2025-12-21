@@ -2,9 +2,8 @@
 
 
 ## Đồ án cuối kì CSLT
----
-
-## Thành viên nhóm
+----------------------
+## Team members:
 
 - Đỗ Quang Dũng
 - Dương Ngọc Khôi
@@ -12,7 +11,7 @@
 - Lê Chí Bảo
 - Phạm Nhật Đăng Khoa
 
-
-Nhớ đọc file [CONTRIBUTING.md](CONTRIBUTING.md)
-
-
+## Installations guide:
+- Download or clone this repo into your computer.
+- Build and run all files.
+- Enjoy 💝

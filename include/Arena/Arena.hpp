@@ -15,7 +15,7 @@ void destruct_fn(void* p) {
 class Arena
 {
 public:
-    explicit Arena(size_t _capacity = 1 << 20) : capacity(_capacity)
+    explicit Arena(size_t _capacity = 1 << 24) : capacity(_capacity)
     { // default 1MB
         buf.resize(capacity);
         offset = 0;
@@ -41,7 +41,10 @@ public:
         return *this;
     }
 
-    ~Arena() { reset(); }
+    ~Arena()
+    { 
+        reset();
+    }
 
     void clear()
     {
