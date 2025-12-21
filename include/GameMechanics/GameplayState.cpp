@@ -60,7 +60,7 @@ void GameplayState::handleInput(const KeyInputState& in)
         app->getStateStack().queueSuspend(this, true, false, true);
     }
 
-    if ((in.keyDown[GLFW_KEY_LEFT_CONTROL] && in.keyPressed[GLFW_KEY_Z]) || undoBtn->clicked())
+    if (((in.keyDown[GLFW_KEY_LEFT_CONTROL] && in.keyPressed[GLFW_KEY_Z]) || undoBtn->clicked()) && !undoing)
     {
         if (!data.stepHistory.empty())
         {
