@@ -75,6 +75,14 @@ public:
             app->getStateStack().queueTransit("GameplayState", "GameMenu");
             app->getStateStack().queueSuspend("GameplayState", false, false, false);
             data.changed = false;
+
+            data.playerPos = {};
+            data.enemyPos.clear();
+
+            data.stepHistory.clear();
+            data.enemyStepHistory.clear();
+            data.enemyStep.clear();
+            data.enemyMaxStep.clear();
         }
 
         if (settingsBtn->clicked())
