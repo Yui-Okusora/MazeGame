@@ -60,7 +60,7 @@ void GameplayState::handleInput(const KeyInputState& in)
         app->getStateStack().queueSuspend(this, true, false, true);
     }
 
-    if ((in.keyDown[GLFW_KEY_LEFT_CONTROL] && in.keyPressed[GLFW_KEY_Z]) || undoBtn->clicked())
+    if (((in.keyDown[GLFW_KEY_LEFT_CONTROL] && in.keyPressed[GLFW_KEY_Z]) || undoBtn->clicked()) && !undoing)
     {
         if (!data.stepHistory.empty())
         {
@@ -223,7 +223,7 @@ void GameplayState::update(double dt)
 
     //Lose
     else for(int i = 0; i < enemyNum; ++i)
-    if (playerPos == enemies[i]->pos)
+    if (playerPos == enemies[i]->pos && !undoing)
     {
         bgm.stop();
         data.wlState = 2;
@@ -253,7 +253,7 @@ void GameplayState::update(double dt)
     }
 
     //Movement handling
-    if ((move.x != 0 || move.y != 0) && data.playerPos == playerPos && !undoing && data.enemyStep[0] >= data.enemyMaxStep[0] && data.enemyMaxStep[0] != 1)
+    if ((move.x != 0 || move.y != 0) && data.playerPos == playerPos && !undoing && doneMove)
     {
         data.stepHistory.push_back(data.playerPos);
 
@@ -271,13 +271,15 @@ void GameplayState::update(double dt)
 
             data.enemyPath[i] = (data.difficulty == 0) ?
                 PathFinding<BFS_Heuristic>::run({ enemyMZPos.x, enemyMZPos.y }, { mazePos.x, mazePos.y }, { (int)data.mazeSize.x, (int)data.mazeSize.y }, mazeEncode) :
-                PathFinding<Dijkstra>::run({enemyMZPos.x, enemyMZPos.y}, {mazePos.x, mazePos.y}, { data.mazeSize.x, data.mazeSize.y }, mazeEncode);
+                PathFinding<Dijkstra>::run({enemyMZPos.x, enemyMZPos.y}, {mazePos.x, mazePos.y}, { (int)data.mazeSize.x, (int)data.mazeSize.y }, mazeEncode);
             data.enemyMaxStep[i] = (std::min)((unsigned long long)2, data.enemyPath[i].size() - 1);
             data.enemyStep[i] = 0;
             data.enemyStepHistory[i].emplace_back();
         }
     }
-    
+
+    bool checkEnemyDoneMove = true;
+
     for (int i = 0; i < enemyNum; ++i)
     {
         auto& enemyPos          = enemies[i]->pos;
@@ -286,6 +288,8 @@ void GameplayState::update(double dt)
         auto& enemyPath         = data.enemyPath[i];
         auto& enemyStep         = data.enemyStep[i];
         auto& enemyMaxStep      = data.enemyMaxStep[i];
+
+        if (enemyPos != enemyTargetPos || enemyStep < enemyMaxStep) checkEnemyDoneMove = false;
 
         //Building step history
         if (enemyPos == enemyTargetPos && enemyStep < enemyMaxStep && !undoing)
@@ -311,6 +315,8 @@ void GameplayState::update(double dt)
             }
         }
     }
+
+    doneMove = checkEnemyDoneMove;
 
     // Animation handling
     if (data.playerPos.y - playerPos.y > 0) player->setAnimation(0, 1.5, dt);

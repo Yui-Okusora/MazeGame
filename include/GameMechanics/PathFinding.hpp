@@ -14,7 +14,7 @@ public:
         int width = (size.first - 1) / 2;
         int height = (size.second - 1) / 2;
 
-        const int INF = (std::numeric_limits<int>::max)();
+        constexpr int INF = (std::numeric_limits<int>::max)();
 
         std::vector<std::vector<int>> dist(height, std::vector<int>(width, INF));
         std::vector<std::vector<std::pair<int, int>>> parent(
@@ -93,7 +93,7 @@ public:
         auto cur = path.back();
         while (target.first - cur.first != 0)
         {
-            auto cur = path.back();
+            cur = path.back();
             int dist = target.first - cur.first;
 
             int encX = 2 * cur.first + 1;
@@ -113,7 +113,7 @@ public:
         }
         while (target.second - cur.second != 0)
         {
-            auto cur = path.back();
+            cur = path.back();
             int dist = target.second - cur.second;
 
             int encX = 2 * cur.first + 1;
