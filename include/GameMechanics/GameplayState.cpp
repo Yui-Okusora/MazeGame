@@ -75,13 +75,11 @@ void GameplayState::handleInput(const KeyInputState& in)
         std::cout << "Button pressed!\n";
 
         data.playerPos = data.startPos * charSize;
-        for(int i = 0; i < data.enemyStartPos.size(); ++i)
-            data.enemyPos[i] = data.enemyStartPos[i] * charSize;
-
         player->pos = data.playerPos;
-
-        for (int i = 0; i < enemies.size(); ++i)
+        move = {};
+        for (int i = 0; i < data.enemyStartPos.size(); ++i)
         {
+            data.enemyPos[i] = data.enemyStartPos[i] * charSize;
             enemies[i]->pos = data.enemyPos[i];
         }
 
@@ -201,13 +199,11 @@ void GameplayState::update(double dt)
         app->getStateStack().queueSuspend(this, true, false, true);
 
         data.playerPos = data.startPos * charSize;
-        for (int i = 0; i < data.enemyStartPos.size(); ++i)
-            data.enemyPos[i] = data.enemyStartPos[i] * charSize;
-
         player->pos = data.playerPos;
-
-        for (int i = 0; i < enemies.size(); ++i)
+        move = {};
+        for (int i = 0; i < data.enemyStartPos.size(); ++i)
         {
+            data.enemyPos[i] = data.enemyStartPos[i] * charSize;
             enemies[i]->pos = data.enemyPos[i];
         }
 
@@ -232,13 +228,11 @@ void GameplayState::update(double dt)
         app->getStateStack().queueSuspend(this, true, false, true);
 
         data.playerPos = data.startPos * charSize;
-        for (int i = 0; i < data.enemyStartPos.size(); ++i)
-            data.enemyPos[i] = data.enemyStartPos[i] * charSize;
-
         player->pos = data.playerPos;
-
-        for (int i = 0; i < enemies.size(); ++i)
+        move = {};
+        for (int i = 0; i < data.enemyStartPos.size(); ++i)
         {
+            data.enemyPos[i] = data.enemyStartPos[i] * charSize;
             enemies[i]->pos = data.enemyPos[i];
         }
 
