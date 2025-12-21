@@ -253,7 +253,7 @@ void GameplayState::update(double dt)
     }
 
     //Movement handling
-    if ((move.x != 0 || move.y != 0) && data.playerPos == playerPos && !undoing && data.enemyStep[0] >= data.enemyMaxStep[0])
+    if ((move.x != 0 || move.y != 0) && data.playerPos == playerPos && !undoing && data.enemyStep[0] >= data.enemyMaxStep[0] && data.enemyMaxStep[0] != 1)
     {
         data.stepHistory.push_back(data.playerPos);
 
